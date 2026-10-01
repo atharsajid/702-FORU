@@ -29,7 +29,9 @@ class AllCategoriesScreen extends ConsumerWidget {
           children: [
             const SizedBox(height: AppSpacing.md),
             Center(
-              child: Image.asset('assets/logo.png', height: 76),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(AppRadius.lg),
+                child: Image.asset('assets/logo.png', height: 100)),
             ),
             const SizedBox(height: AppSpacing.lg),
             AsyncValueView<List<Category>>(
@@ -51,7 +53,7 @@ class AllCategoriesScreen extends ConsumerWidget {
             ),
             const SizedBox(height: AppSpacing.lg),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: context.pagePadding),
+              padding: EdgeInsets.symmetric(horizontal: context.pagePadding, ),
               child: Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(AppSpacing.lg),
@@ -81,6 +83,8 @@ class AllCategoriesScreen extends ConsumerWidget {
                 ),
               ),
             ),
+            const SizedBox(height: AppSpacing.lg),
+
           ],
         ),
       ),

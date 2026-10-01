@@ -41,7 +41,10 @@ class CategoryScreen extends ConsumerWidget {
             // 702FORU logo keeps the brand present on every category page.
             SliverToBoxAdapter(
               child: Center(
-                child: Image.asset('assets/logo.png', height: 72),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                  
+                  child: Image.asset('assets/logo.png', height: 100)),
               ),
             ),
 
@@ -73,7 +76,7 @@ class CategoryScreen extends ConsumerWidget {
             SliverToBoxAdapter(
               child: AppSectionHeader(
                 title: 'Businesses in ${category.name}',
-                subtitle: 'Every listing shares the same layout',
+                subtitle: category.description,
               ),
             ),
 

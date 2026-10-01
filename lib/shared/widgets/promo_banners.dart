@@ -36,39 +36,39 @@ class BrandBanner extends StatelessWidget {
               children: [
                 Image.asset(imageAsset, fit: BoxFit.cover),
                 // Subtle "watch animation" affordance, matching iOS chrome.
-                Positioned(
-                  left: AppSpacing.md,
-                  top: AppSpacing.md,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.sm,
-                      vertical: 3,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.black.withValues(alpha: 0.35),
-                      borderRadius: BorderRadius.circular(AppRadius.pill),
-                    ),
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.play_circle_outline,
-                          size: 13,
-                          color: AppColors.white,
-                        ),
-                        SizedBox(width: AppSpacing.xs),
-                        Text(
-                          'Watch Animation',
-                          style: TextStyle(
-                            fontSize: 10.5,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                // Positioned(
+                //   left: AppSpacing.md,
+                //   top: AppSpacing.md,
+                //   child: Container(
+                //     padding: const EdgeInsets.symmetric(
+                //       horizontal: AppSpacing.sm,
+                //       vertical: 3,
+                //     ),
+                //     decoration: BoxDecoration(
+                //       color: AppColors.black.withValues(alpha: 0.35),
+                //       borderRadius: BorderRadius.circular(AppRadius.pill),
+                //     ),
+                //     child: const Row(
+                //       mainAxisSize: MainAxisSize.min,
+                //       children: [
+                //         Icon(
+                //           Icons.play_circle_outline,
+                //           size: 13,
+                //           color: AppColors.white,
+                //         ),
+                //         SizedBox(width: AppSpacing.xs),
+                //         Text(
+                //           'Watch Animation',
+                //           style: TextStyle(
+                //             fontSize: 10.5,
+                //             fontWeight: FontWeight.w600,
+                //             color: AppColors.white,
+                //           ),
+                //         ),
+                //       ],
+                //     ),
+                //   ),
+                // ),
               ],
             ),
           ),
@@ -148,6 +148,7 @@ class OfferBanner extends StatelessWidget {
                     variant: AppButtonVariant.outline,
                     isFullWidth: false,
                     onPressed: onPressed,
+                    textColor: AppColors.white,
                   ),
                 ],
               ),

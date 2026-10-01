@@ -23,6 +23,7 @@ class AppButton extends StatelessWidget {
     this.isLoading = false,
     this.isFullWidth = true,
     this.enabled = true,
+    this.textColor,
   });
 
   final String label;
@@ -32,6 +33,7 @@ class AppButton extends StatelessWidget {
   final IconData? icon;
   final IconData? trailingIcon;
   final bool isLoading;
+  final Color? textColor;
 
   /// Stretch to the parent width (default) or hug the content.
   final bool isFullWidth;
@@ -156,6 +158,7 @@ class AppButton extends StatelessWidget {
               fontSize: _fontSize,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.1,
+              color: textColor,
             ),
           ),
         ),

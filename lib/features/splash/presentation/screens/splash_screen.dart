@@ -65,8 +65,14 @@ class _SplashScreenState extends State<SplashScreen>
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    SizedBox(
-                      width: 260,
+                    Container(
+                      width: double.infinity,
+                      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                      clipBehavior: Clip.hardEdge,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12)
+
+                      ),
                       child: Image.asset('assets/logo.png'),
                     ),
                     const SizedBox(height: AppSpacing.xxl),

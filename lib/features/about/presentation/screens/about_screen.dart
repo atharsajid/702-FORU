@@ -46,7 +46,9 @@ class AboutScreen extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  Image.asset('assets/logo.png', height: 108),
+                  ClipRRect(
+                    borderRadius: BorderRadiusGeometry.circular(16),
+                    child: Image.asset('assets/logo.png', height: 108)),
                   const SizedBox(height: AppSpacing.md),
                   Text(
                     'Discover. Connect. Experience.',

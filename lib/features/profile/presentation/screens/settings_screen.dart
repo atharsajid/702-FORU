@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:for_you/features/offers/presentation/providers/offers_providers.dart';
 
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/storage/hive_service.dart';

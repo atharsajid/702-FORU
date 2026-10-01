@@ -56,7 +56,6 @@ class AppTextField extends StatelessWidget {
       textInputAction: textInputAction,
       autofillHints: autofillHints,
       validator: validator,
-      onSubmitted: onSubmitted,
       onChanged: onChanged,
       style: Theme.of(context).textTheme.bodyLarge,
       decoration: InputDecoration(

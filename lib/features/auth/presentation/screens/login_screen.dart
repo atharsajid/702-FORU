@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:for_you/core/constant/app_strings.dart';
 
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/storage/local_seed.dart';
@@ -40,10 +43,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isBusy = true);
-    final ok = await ref.read(authControllerProvider.notifier).signIn(
-          email: _email.text,
-          password: _password.text,
-        );
+    final ok = await ref.read(authControllerProvider.notifier).signIn(email: _email.text, password: _password.text);
     if (!mounted) return;
     setState(() => _isBusy = false);
 
@@ -56,10 +56,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
   }
 
-  void _useDemo({
-    required String email,
-    required String password,
-  }) {
+  void _useDemo({required String email, required String password}) {
     setState(() {
       _email.text = email;
       _password.text = password;
@@ -78,20 +75,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 460),
               child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: context.pagePadding,
-                  vertical: AppSpacing.lg,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: context.pagePadding, vertical: AppSpacing.lg),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Center(child: Image.asset('assets/logo.png', height: 84)),
-                    const SizedBox(height: AppSpacing.lg),
-                    Text(
-                      'Welcome back',
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.displayMedium,
+                    Center(
+                      child: ClipRRect(borderRadius: BorderRadius.circular(AppRadius.lg), child: Image.asset('assets/logo.png', height: 84)),
                     ),
+                    const SizedBox(height: AppSpacing.lg),
+                    Text('Welcome back', textAlign: TextAlign.center, style: Theme.of(context).textTheme.displayMedium),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
                       'Sign in to save favourites, redeem coupons and leave reviews.',
@@ -131,18 +123,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     Align(
                       alignment: Alignment.centerRight,
                       child: TextButton(
-                        onPressed: () => Navigator.of(context)
-                            .pushNamed(AppRoutes.forgotPassword),
+                        onPressed: () => Navigator.of(context).pushNamed(AppRoutes.forgotPassword),
                         child: const Text('Forgot password?'),
                       ),
                     ),
 
-                    AppButton(
-                      label: 'Sign In',
-                      size: AppButtonSize.large,
-                      isLoading: _isBusy,
-                      onPressed: _submit,
-                    ),
+                    AppButton(label: 'Sign In', size: AppButtonSize.large, isLoading: _isBusy, onPressed: _submit),
 
                     const SizedBox(height: AppSpacing.xl),
                     const AppOrDivider(),
@@ -152,12 +138,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       children: [
                         Expanded(
                           child: AppButton(
-                            label: 'Google',
-                            icon: Icons.g_mobiledata_rounded,
+                            label: Platform.isIOS ? 'Apple' : 'Google',
+                            icon: Platform.isIOS ? Icons.apple : Icons.g_mobiledata_rounded,
                             variant: AppButtonVariant.outline,
-                            onPressed: () => context.showSnack(
-                              'Google sign-in arrives with the backend.',
-                            ),
+                            onPressed: () => context.showSnack(AppStrings.thisFeatureWillBeAvailableSoon),
                           ),
                         ),
                         const SizedBox(width: AppSpacing.md),
@@ -166,9 +150,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             label: 'Facebook',
                             icon: Icons.facebook_outlined,
                             variant: AppButtonVariant.outline,
-                            onPressed: () => context.showSnack(
-                              'Facebook sign-in arrives with the backend.',
-                            ),
+                            onPressed: () => context.showSnack(AppStrings.thisFeatureWillBeAvailableSoon),
                           ),
                         ),
                       ],
@@ -182,34 +164,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const AppTag(
-                            label: 'DEMO ACCOUNTS',
-                            color: AppColors.purple,
-                            textColor: AppColors.white,
-                            compact: true,
-                          ),
+                          const AppTag(label: 'DEMO ACCOUNTS', color: AppColors.purple, textColor: AppColors.white, compact: true),
                           const SizedBox(height: AppSpacing.sm),
-                          Text(
-                            'No backend yet — tap a demo account to sign in instantly.',
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
+                          Text('Tap a demo account to sign in instantly.', style: Theme.of(context).textTheme.bodySmall),
                           const SizedBox(height: AppSpacing.sm),
                           _DemoButton(
                             label: 'Visitor',
                             email: LocalSeed.demoUserEmail,
-                            onTap: () => _useDemo(
-                              email: LocalSeed.demoUserEmail,
-                              password: LocalSeed.demoUserPassword,
-                            ),
+                            onTap: () => _useDemo(email: LocalSeed.demoUserEmail, password: LocalSeed.demoUserPassword),
                           ),
                           const SizedBox(height: AppSpacing.xs),
                           _DemoButton(
                             label: 'Business provider',
                             email: LocalSeed.demoProviderEmail,
-                            onTap: () => _useDemo(
-                              email: LocalSeed.demoProviderEmail,
-                              password: LocalSeed.demoProviderPassword,
-                            ),
+                            onTap: () => _useDemo(email: LocalSeed.demoProviderEmail, password: LocalSeed.demoProviderPassword),
                           ),
                         ],
                       ),
@@ -220,19 +188,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          "Haven't an account? ",
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
+                        Text("Haven't an account? ", style: Theme.of(context).textTheme.bodyMedium),
                         GestureDetector(
-                          onTap: () => Navigator.of(context)
-                              .pushNamed(AppRoutes.signUpRole),
+                          onTap: () => Navigator.of(context).pushNamed(AppRoutes.signUpRole),
                           child: const Text(
                             'Sign up now',
-                            style: TextStyle(
-                              color: AppColors.purple,
-                              fontWeight: FontWeight.w700,
-                            ),
+                            style: TextStyle(color: AppColors.purple, fontWeight: FontWeight.w700),
                           ),
                         ),
                       ],
@@ -245,8 +206,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         variant: AppButtonVariant.ghost,
                         size: AppButtonSize.small,
                         isFullWidth: false,
-                        onPressed: () => Navigator.of(context)
-                            .pushNamed(AppRoutes.howItWorks),
+                        onPressed: () => Navigator.of(context).pushNamed(AppRoutes.howItWorks),
                       ),
                     ),
                   ],
@@ -261,11 +221,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 }
 
 class _DemoButton extends StatelessWidget {
-  const _DemoButton({
-    required this.label,
-    required this.email,
-    required this.onTap,
-  });
+  const _DemoButton({required this.label, required this.email, required this.onTap});
 
   final String label;
   final String email;
@@ -286,20 +242,8 @@ class _DemoButton extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    label,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  Text(
-                    email,
-                    style: const TextStyle(
-                      fontSize: 11.5,
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
+                  Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
+                  Text(email, style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary)),
                 ],
               ),
             ),

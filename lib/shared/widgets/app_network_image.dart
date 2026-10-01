@@ -28,7 +28,7 @@ class AppNetworkImage extends StatelessWidget {
   final BorderRadius? borderRadius;
   final IconData placeholderIcon;
   final Color? backgroundColor;
-  final AlignmentGeometry alignment;
+  final Alignment alignment;
 
   @override
   Widget build(BuildContext context) {

@@ -53,11 +53,8 @@ class BusinessScreen extends ConsumerWidget {
     const earthRadiusMiles = 3958.8;
     final dLat = _toRadians(lat - _refLat);
     final dLng = _toRadians(lng - _refLng);
-    final a = math.sin(dLat / 2) * math.sin(dLat / 2) +
-        math.cos(_toRadians(_refLat)) *
-            math.cos(_toRadians(lat)) *
-            math.sin(dLng / 2) *
-            math.sin(dLng / 2);
+    final a =
+        math.sin(dLat / 2) * math.sin(dLat / 2) + math.cos(_toRadians(_refLat)) * math.cos(_toRadians(lat)) * math.sin(dLng / 2) * math.sin(dLng / 2);
     final c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
     final miles = earthRadiusMiles * c;
     if (miles < 0.1) return '< 0.1 mi from you';
@@ -87,10 +84,7 @@ class _BusinessContent extends ConsumerWidget {
         SliverAppBar(
           expandedHeight: 230,
           pinned: true,
-          title: Text(
-            business.name,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-          ),
+          title: Text(business.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
           actions: [
             IconButton(
               tooltip: isFavorite ? 'Remove from saved' : 'Save business',
@@ -99,18 +93,12 @@ class _BusinessContent extends ConsumerWidget {
                   Navigator.of(context).pushNamed(AppRoutes.login);
                   return;
                 }
-                await ref
-                    .read(favoritesControllerProvider.notifier)
-                    .toggle(business.id);
+                await ref.read(favoritesControllerProvider.notifier).toggle(business.id);
                 if (context.mounted) {
-                  context.showSnack(
-                    isFavorite ? 'Removed from saved' : 'Saved to your list',
-                  );
+                  context.showSnack(isFavorite ? 'Removed from saved' : 'Saved to your list');
                 }
               },
-              icon: Icon(
-                isFavorite ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
-              ),
+              icon: Icon(isFavorite ? Icons.bookmark_rounded : Icons.bookmark_border_rounded),
             ),
             const SizedBox(width: AppSpacing.xs),
           ],
@@ -118,10 +106,7 @@ class _BusinessContent extends ConsumerWidget {
             background: Stack(
               fit: StackFit.expand,
               children: [
-                AppNetworkImage(
-                  url: business.coverUrl ?? business.logoUrl,
-                  placeholderIcon: Icons.storefront_outlined,
-                ),
+                AppNetworkImage(url: business.coverUrl ?? business.logoUrl, placeholderIcon: Icons.storefront_outlined),
                 // Keeps the app bar icons legible over bright photos.
                 const DecoratedBox(
                   decoration: BoxDecoration(
@@ -139,32 +124,32 @@ class _BusinessContent extends ConsumerWidget {
         ),
 
         // ── Logo ───────────────────────────────────────────────────────
-        SliverToBoxAdapter(
-          child: Transform.translate(
-            offset: const Offset(0, -34),
-            child: Center(
-              child: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: const BoxDecoration(
-                  color: AppColors.white,
-                  shape: BoxShape.circle,
-                ),
-                child: ClipOval(
-                  child: AppNetworkImage(
-                    url: business.logoUrl ?? business.coverUrl,
-                    width: 84,
-                    height: 84,
-                    placeholderIcon: Icons.storefront_outlined,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
+        
+          // SliverToBoxAdapter(
+          //   child: Transform.translate(
+          //     offset: const Offset(0, 0),
+          //     child: Center(
+          //       child: Container(
+          //         padding: const EdgeInsets.all(4),
+          //         decoration: const BoxDecoration(color: AppColors.white, shape: BoxShape.circle),
+          //         child: ClipOval(
+          //           child: AppNetworkImage(
+          //             url: business.logoUrl ?? business.coverUrl,
+          //             width: 84,
+          //             height: 84,
+          //             placeholderIcon: Icons.storefront_outlined,
+          //           ),
+          //         ),
+          //       ),
+          //     ),
+          //   ),
+          // ),
+
+        
 
         SliverToBoxAdapter(
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: context.pagePadding),
+            padding: EdgeInsets.symmetric(horizontal: context.pagePadding, vertical: AppSpacing.lg),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -172,19 +157,11 @@ class _BusinessContent extends ConsumerWidget {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Text(
-                        business.name,
-                        style: Theme.of(context).textTheme.displayMedium,
-                      ),
-                    ),
+                    Expanded(child: Text(business.name, style: Theme.of(context).textTheme.displayMedium)),
                     const SizedBox(width: AppSpacing.sm),
                     Padding(
                       padding: const EdgeInsets.only(top: AppSpacing.xs),
-                      child: AppRatingBadge(
-                        rating: business.rating,
-                        reviewCount: business.reviewCount,
-                      ),
+                      child: AppRatingBadge(rating: business.rating, reviewCount: business.reviewCount),
                     ),
                   ],
                 ),
@@ -192,15 +169,8 @@ class _BusinessContent extends ConsumerWidget {
 
                 Row(
                   children: [
-                    if (business.isSponsored)
-                      const AppTag(
-                        label: 'SPOTLIGHT',
-                        color: AppColors.gold,
-                        textColor: AppColors.navy,
-                        compact: true,
-                      ),
-                    if (business.isSponsored && business.trackingCode.isNotEmpty)
-                      const SizedBox(width: AppSpacing.sm),
+                    if (business.isSponsored) const AppTag(label: 'SPOTLIGHT', color: AppColors.gold, textColor: AppColors.navy, compact: true),
+                    if (business.isSponsored && business.trackingCode.isNotEmpty) const SizedBox(width: AppSpacing.sm),
                     if (business.trackingCode.isNotEmpty)
                       AppTag(
                         label: business.trackingCode,
@@ -215,19 +185,11 @@ class _BusinessContent extends ConsumerWidget {
                 const SizedBox(height: AppSpacing.md),
 
                 // ── Address ──────────────────────────────────────────────
-                _InfoRow(
-                  icon: Icons.location_on_outlined,
-                  text: business.address.isEmpty
-                      ? 'Las Vegas, NV'
-                      : business.address,
-                ),
+                _InfoRow(icon: Icons.location_on_outlined, text: business.address.isEmpty ? 'Las Vegas, NV' : business.address),
                 const SizedBox(height: AppSpacing.sm),
 
                 // ── Map with distance ────────────────────────────────────
-                _MapCard(
-                  label: BusinessScreen.distanceLabel(business),
-                  address: business.address,
-                ),
+                _MapCard(label: BusinessScreen.distanceLabel(business), address: business.address),
 
                 if (isOwner) ...[
                   const SizedBox(height: AppSpacing.md),
@@ -235,8 +197,7 @@ class _BusinessContent extends ConsumerWidget {
                     label: 'Edit your listing',
                     icon: Icons.edit_outlined,
                     variant: AppButtonVariant.secondary,
-                    onPressed: () => Navigator.of(context)
-                        .pushNamed(AppRoutes.businessEditor),
+                    onPressed: () => Navigator.of(context).pushNamed(AppRoutes.businessEditor),
                   ),
                 ],
 
@@ -245,12 +206,7 @@ class _BusinessContent extends ConsumerWidget {
                   const SizedBox(height: AppSpacing.xl),
                   _SectionTitle('About'),
                   const SizedBox(height: AppSpacing.sm),
-                  Text(
-                    business.description,
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                  ),
+                  Text(business.description, style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary)),
                 ],
 
                 // ── Services ─────────────────────────────────────────────
@@ -263,12 +219,7 @@ class _BusinessContent extends ConsumerWidget {
                     runSpacing: AppSpacing.sm,
                     children: [
                       for (final service in business.services)
-                        AppTag(
-                          label: service,
-                          icon: Icons.check_circle_outline_rounded,
-                          iconColor: AppColors.purple,
-                          bordered: true,
-                        ),
+                        AppTag(label: service, icon: Icons.check_circle_outline_rounded, iconColor: AppColors.purple, bordered: true),
                     ],
                   ),
                 ],
@@ -284,15 +235,10 @@ class _BusinessContent extends ConsumerWidget {
                       scrollDirection: Axis.horizontal,
                       physics: const BouncingScrollPhysics(),
                       itemCount: business.gallery.length,
-                      separatorBuilder: (_, __) =>
-                          const SizedBox(width: AppSpacing.sm),
+                      separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.sm),
                       itemBuilder: (context, index) => ClipRRect(
                         borderRadius: BorderRadius.circular(AppRadius.md),
-                        child: AppNetworkImage(
-                          url: business.gallery[index],
-                          width: 168,
-                          height: 120,
-                        ),
+                        child: AppNetworkImage(url: business.gallery[index], width: 168, height: 120),
                       ),
                     ),
                   ),
@@ -306,17 +252,12 @@ class _BusinessContent extends ConsumerWidget {
         SliverToBoxAdapter(
           child: AsyncValueView<List<Coupon>>(
             value: coupons,
-            onRetry: () =>
-                ref.invalidate(couponsForBusinessProvider(business.id)),
+            onRetry: () => ref.invalidate(couponsForBusinessProvider(business.id)),
             loading: const SizedBox.shrink(),
             builder: (context, list) {
               if (list.isEmpty) return const SizedBox.shrink();
               return Padding(
-                padding: EdgeInsets.only(
-                  top: AppSpacing.xl,
-                  left: context.pagePadding,
-                  right: context.pagePadding,
-                ),
+                padding: EdgeInsets.only(top: AppSpacing.xl, left: context.pagePadding, right: context.pagePadding),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -325,10 +266,7 @@ class _BusinessContent extends ConsumerWidget {
                     for (final coupon in list)
                       Padding(
                         padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                        child: _CouponCard(
-                          coupon: coupon,
-                          onRedeem: () => _redeem(context, ref, coupon),
-                        ),
+                        child: _CouponCard(coupon: coupon, onRedeem: () => _redeem(context, ref, coupon)),
                       ),
                   ],
                 ),
@@ -340,12 +278,7 @@ class _BusinessContent extends ConsumerWidget {
         // ── Reviews ────────────────────────────────────────────────────
         SliverToBoxAdapter(
           child: Padding(
-            padding: EdgeInsets.fromLTRB(
-              context.pagePadding,
-              AppSpacing.xl,
-              context.pagePadding,
-              0,
-            ),
+            padding: EdgeInsets.fromLTRB(context.pagePadding, AppSpacing.xl, context.pagePadding, 0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -358,10 +291,7 @@ class _BusinessContent extends ConsumerWidget {
                           Navigator.of(context).pushNamed(AppRoutes.login);
                           return;
                         }
-                        Navigator.of(context).pushNamed(
-                          AppRoutes.writeReview,
-                          arguments: business.id,
-                        );
+                        Navigator.of(context).pushNamed(AppRoutes.writeReview, arguments: business.id);
                       },
                       icon: const Icon(Icons.rate_review_outlined, size: 18),
                       label: const Text('Write a review'),
@@ -378,10 +308,7 @@ class _BusinessContent extends ConsumerWidget {
                       return Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(AppSpacing.lg),
-                        decoration: BoxDecoration(
-                          color: AppColors.surface,
-                          borderRadius: BorderRadius.circular(AppRadius.lg),
-                        ),
+                        decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(AppRadius.lg)),
                         child: Text(
                           user == null
                               ? 'No reviews yet. Sign in to be the first to review.'
@@ -394,8 +321,7 @@ class _BusinessContent extends ConsumerWidget {
                       children: [
                         for (final review in list)
                           Padding(
-                            padding:
-                                const EdgeInsets.only(bottom: AppSpacing.sm),
+                            padding: const EdgeInsets.only(bottom: AppSpacing.sm),
                             child: _ReviewCard(review: review),
                           ),
                       ],
@@ -410,36 +336,19 @@ class _BusinessContent extends ConsumerWidget {
         // ── Contact ────────────────────────────────────────────────────
         SliverToBoxAdapter(
           child: Padding(
-            padding: EdgeInsets.fromLTRB(
-              context.pagePadding,
-              AppSpacing.xl,
-              context.pagePadding,
-              AppSpacing.xxxl,
-            ),
+            padding: EdgeInsets.fromLTRB(context.pagePadding, AppSpacing.xl, context.pagePadding, AppSpacing.xxxl),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const _SectionTitle('Contact & Socials'),
                 const SizedBox(height: AppSpacing.sm),
-                if (business.phone.isNotEmpty)
-                  _ContactTile(
-                    icon: Icons.phone_outlined,
-                    title: 'Phone',
-                    value: business.phone,
-                  ),
+                if (business.phone.isNotEmpty) _ContactTile(icon: Icons.phone_outlined, title: 'Phone', value: business.phone),
                 if (business.website.isNotEmpty) ...[
                   const SizedBox(height: AppSpacing.sm),
-                  _ContactTile(
-                    icon: Icons.language_outlined,
-                    title: 'Website',
-                    value: business.website,
-                  ),
+                  _ContactTile(icon: Icons.language_outlined, title: 'Website', value: business.website),
                 ],
                 if (business.phone.isEmpty && business.website.isEmpty)
-                  Text(
-                    'Contact details coming soon.',
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
+                  Text('Contact details coming soon.', style: Theme.of(context).textTheme.bodyMedium),
               ],
             ),
           ),
@@ -448,11 +357,7 @@ class _BusinessContent extends ConsumerWidget {
     );
   }
 
-  Future<void> _redeem(
-    BuildContext context,
-    WidgetRef ref,
-    Coupon coupon,
-  ) async {
+  Future<void> _redeem(BuildContext context, WidgetRef ref, Coupon coupon) async {
     final user = ref.read(currentUserProvider);
     if (user == null) {
       Navigator.of(context).pushNamed(AppRoutes.login);
@@ -467,8 +372,7 @@ class _BusinessContent extends ConsumerWidget {
         ref.invalidate(couponsForBusinessProvider(business.id));
         _showCodeDialog(context, redeemed);
       },
-      failure: (failure) =>
-          context.showSnack(failure.message, isError: true),
+      failure: (failure) => context.showSnack(failure.message, isError: true),
     );
   }
 
@@ -481,22 +385,11 @@ class _BusinessContent extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.xl,
-                vertical: AppSpacing.md,
-              ),
-              decoration: BoxDecoration(
-                color: AppColors.purple.withValues(alpha: 0.10),
-                borderRadius: BorderRadius.circular(AppRadius.md),
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl, vertical: AppSpacing.md),
+              decoration: BoxDecoration(color: AppColors.purple.withValues(alpha: 0.10), borderRadius: BorderRadius.circular(AppRadius.md)),
               child: Text(
                 coupon.code,
-                style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 2,
-                  color: AppColors.purple,
-                ),
+                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, letterSpacing: 2, color: AppColors.purple),
               ),
             ),
             const SizedBox(height: AppSpacing.md),
@@ -508,12 +401,7 @@ class _BusinessContent extends ConsumerWidget {
             ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Done'),
-          ),
-        ],
+        actions: [TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: const Text('Done'))],
       ),
     );
   }
@@ -527,8 +415,7 @@ class _SectionTitle extends StatelessWidget {
   final String title;
 
   @override
-  Widget build(BuildContext context) =>
-      Text(title, style: Theme.of(context).textTheme.headlineMedium);
+  Widget build(BuildContext context) => Text(title, style: Theme.of(context).textTheme.headlineMedium);
 }
 
 class _InfoRow extends StatelessWidget {
@@ -543,12 +430,7 @@ class _InfoRow extends StatelessWidget {
       children: [
         Icon(icon, size: 18, color: AppColors.purple),
         const SizedBox(width: AppSpacing.sm),
-        Expanded(
-          child: Text(
-            text,
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-        ),
+        Expanded(child: Text(text, style: Theme.of(context).textTheme.bodyMedium)),
       ],
     );
   }
@@ -573,38 +455,15 @@ class _MapCard extends StatelessWidget {
       ),
       child: Stack(
         children: [
-          Positioned(
-            left: 0,
-            right: 0,
-            top: 0,
-            bottom: 0,
-            child: CustomPaint(painter: _GridPainter()),
-          ),
+          Positioned(left: 0, right: 0, top: 0, bottom: 0, child: CustomPaint(painter: _GridPainter())),
           Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(
-                  Icons.location_on,
-                  color: AppColors.purple,
-                  size: 28,
-                ),
+                const Icon(Icons.location_on, color: AppColors.purple, size: 28),
                 const SizedBox(height: AppSpacing.xs),
-                Text(
-                  label,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 13.5,
-                  ),
-                ),
-                if (address.isNotEmpty)
-                  Text(
-                    address,
-                    style: const TextStyle(
-                      fontSize: 11.5,
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
+                Text(label, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5)),
+                if (address.isNotEmpty) Text(address, style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary)),
               ],
             ),
           ),
@@ -636,11 +495,7 @@ class _GridPainter extends CustomPainter {
 }
 
 class _ContactTile extends StatelessWidget {
-  const _ContactTile({
-    required this.icon,
-    required this.title,
-    required this.value,
-  });
+  const _ContactTile({required this.icon, required this.title, required this.value});
 
   final IconData icon;
   final String title;
@@ -658,21 +513,12 @@ class _ContactTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 11.5,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
+                Text(title, style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary)),
                 Text(
                   value,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                 ),
               ],
             ),
@@ -697,32 +543,14 @@ class _ReviewCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              AppAvatar(
-                imageUrl: review.userAvatarUrl,
-                initials: review.userName.isEmpty
-                    ? '?'
-                    : review.userName[0].toUpperCase(),
-                size: 34,
-              ),
+              AppAvatar(imageUrl: review.userAvatarUrl, initials: review.userName.isEmpty ? '?' : review.userName[0].toUpperCase(), size: 34),
               const SizedBox(width: AppSpacing.sm),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      review.userName,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    Text(
-                      AppFormatters.relative(review.createdAt),
-                      style: const TextStyle(
-                        fontSize: 11.5,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
+                    Text(review.userName, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
+                    Text(AppFormatters.relative(review.createdAt), style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary)),
                   ],
                 ),
               ),
@@ -730,12 +558,7 @@ class _ReviewCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.sm),
-          Text(
-            review.comment,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.textPrimary,
-                ),
-          ),
+          Text(review.comment, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textPrimary)),
         ],
       ),
     );
@@ -752,10 +575,7 @@ class _CouponCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        gradient: AppColors.brandGradient,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-      ),
+      decoration: BoxDecoration(gradient: AppColors.brandGradient, borderRadius: BorderRadius.circular(AppRadius.lg)),
       child: Row(
         children: [
           Expanded(
@@ -764,41 +584,22 @@ class _CouponCard extends StatelessWidget {
               children: [
                 Text(
                   coupon.title,
-                  style: const TextStyle(
-                    color: AppColors.white,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: const TextStyle(color: AppColors.white, fontSize: 15, fontWeight: FontWeight.w700),
                 ),
                 if (coupon.description.isNotEmpty) ...[
                   const SizedBox(height: 2),
-                  Text(
-                    coupon.description,
-                    style: TextStyle(
-                      color: AppColors.white.withValues(alpha: 0.85),
-                      fontSize: 12,
-                    ),
-                  ),
+                  Text(coupon.description, style: TextStyle(color: AppColors.white.withValues(alpha: 0.85), fontSize: 12)),
                 ],
                 const SizedBox(height: AppSpacing.xs),
                 Text(
                   '${AppFormatters.compact(coupon.redemptionCount)} redeemed',
-                  style: TextStyle(
-                    color: AppColors.white.withValues(alpha: 0.75),
-                    fontSize: 11,
-                  ),
+                  style: TextStyle(color: AppColors.white.withValues(alpha: 0.75), fontSize: 11),
                 ),
               ],
             ),
           ),
           const SizedBox(width: AppSpacing.sm),
-          AppButton(
-            label: 'Redeem',
-            size: AppButtonSize.small,
-            variant: AppButtonVariant.outline,
-            isFullWidth: false,
-            onPressed: onRedeem,
-          ),
+          AppButton(label: 'Redeem', size: AppButtonSize.small, variant: AppButtonVariant.outline, isFullWidth: false, onPressed: onRedeem),
         ],
       ),
     );

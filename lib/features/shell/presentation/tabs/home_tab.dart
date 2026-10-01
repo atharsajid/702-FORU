@@ -74,7 +74,9 @@ class HomeTab extends ConsumerWidget {
 
               // RSS / news ticker (Home only)
               const SliverToBoxAdapter(
-                child: RssMarquee(items: _rssItems),
+                child: RssMarquee(items: _rssItems,
+                
+                ),
               ),
 
               const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),
@@ -219,7 +221,7 @@ class _HomeHeader extends ConsumerWidget {
           const SizedBox(width: AppSpacing.sm),
           if (user == null)
             AppButton(
-              label: 'Sign In / Sign Up',
+              label: 'Sign In',
               size: AppButtonSize.small,
               isFullWidth: false,
               onPressed: () =>
