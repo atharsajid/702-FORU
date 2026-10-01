@@ -117,9 +117,38 @@ class AppUser {
         createdAt: Json.dateTime(map['createdAt']),
       );
 
+  /// Full structural equality.
+  ///
+  /// Deliberately *not* id-only: Riverpod's `select` compares selected values
+  /// with `==`, so an id-only comparison would hide profile edits (name,
+  /// marketing preference, linked business) from the UI and leave stale
+  /// widgets on screen.
   @override
-  bool operator ==(Object other) => other is AppUser && other.id == id;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AppUser &&
+          other.id == id &&
+          other.fullName == fullName &&
+          other.email == email &&
+          other.phone == phone &&
+          other.role == role &&
+          other.avatarUrl == avatarUrl &&
+          other.businessId == businessId &&
+          other.passwordHash == passwordHash &&
+          other.marketingOptIn == marketingOptIn &&
+          other.createdAt == createdAt;
 
   @override
-  int get hashCode => id.hashCode;
+  int get hashCode => Object.hash(
+        id,
+        fullName,
+        email,
+        phone,
+        role,
+        avatarUrl,
+        businessId,
+        passwordHash,
+        marketingOptIn,
+        createdAt,
+      );
 }

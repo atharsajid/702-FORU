@@ -11,12 +11,14 @@ import '../../features/catalog/domain/entities/category.dart';
 import '../../features/catalog/presentation/screens/all_categories_screen.dart';
 import '../../features/catalog/presentation/screens/business_screen.dart';
 import '../../features/catalog/presentation/screens/category_screen.dart';
+import '../../features/catalog/presentation/screens/search_screen.dart';
 import '../../features/catalog/presentation/screens/write_review_screen.dart';
 import '../../features/notifications/presentation/screens/notifications_screen.dart';
 import '../../features/offers/presentation/screens/offers_screen.dart';
 import '../../features/offers/presentation/screens/spotlight_info_screen.dart';
 import '../../features/profile/presentation/screens/edit_profile_screen.dart';
 import '../../features/profile/presentation/screens/favorites_screen.dart';
+import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/profile/presentation/screens/settings_screen.dart';
 import '../../features/provider/presentation/screens/business_editor_screen.dart';
 import '../../features/provider/presentation/screens/provider_coupons_screen.dart';
@@ -68,6 +70,8 @@ class AppRouter {
         return _page(const OffersScreen(), settings);
       case AppRoutes.spotlightInfo:
         return _page(const SpotlightInfoScreen(), settings);
+      case AppRoutes.search:
+        return _page(const SearchScreen(), settings);
       case AppRoutes.allCategories:
         return _page(const AllCategoriesScreen(), settings);
 
@@ -87,6 +91,8 @@ class AppRouter {
         return _page(WriteReviewScreen(businessId: businessId), settings);
 
       // ── Account ────────────────────────────────────────────────────────
+      case AppRoutes.profile:
+        return _page(const ProfileScreen(), settings);
       case AppRoutes.favorites:
         return _page(const FavoritesScreen(), settings);
       case AppRoutes.settings:
@@ -103,6 +109,13 @@ class AppRouter {
         return _page(const ProviderCouponsScreen(), settings);
 
       default:
+        // Fail loudly in debug: a missing case here is always a coding mistake
+        // and would otherwise show the user a dead-end "Not found" screen.
+        assert(
+          false,
+          'Unregistered route "${settings.name}" – add it to AppRoutes and to '
+          'AppRouter.onGenerateRoute.',
+        );
         return _page(const _UnknownRouteScreen(), settings);
     }
   }

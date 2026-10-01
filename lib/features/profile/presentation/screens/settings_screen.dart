@@ -11,6 +11,7 @@ import '../../../../core/utils/context_extensions.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../../shared/widgets/app_button.dart';
 import '../../../../shared/widgets/app_card.dart';
+import '../../../auth/domain/entities/app_user.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../../catalog/presentation/providers/catalog_providers.dart';
 import '../../../notifications/presentation/providers/notifications_providers.dart';
@@ -66,6 +67,31 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     context.showSnack('Demo data restored.');
   }
 
+  /// Persists the promotional-consent switch and reports failures instead of
+  /// silently doing nothing.
+  Future<void> _setMarketingOptIn(AppUser user, bool value) async {
+    final saved = await ref
+        .read(authControllerProvider.notifier)
+        .updateProfile(user.copyWith(marketingOptIn: value));
+
+    if (!mounted) return;
+
+    if (!saved) {
+      final failure = ref.read(authControllerProvider).error;
+      context.showSnack(
+        failure?.message ?? 'Could not save your preference. Please try again.',
+        isError: true,
+      );
+      return;
+    }
+
+    context.showSnack(
+      value
+          ? 'You will receive exclusive offers.'
+          : 'Promotional messages turned off.',
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(currentUserProvider);
@@ -92,18 +118,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               subtitle: const Text('Exclusive offers and 702FORU updates'),
               onChanged: user == null
                   ? null
-                  : (value) async {
-                      await ref
-                          .read(authControllerProvider.notifier)
-                          .updateProfile(user.copyWith(marketingOptIn: value));
-                      if (context.mounted) {
-                        context.showSnack(
-                          value
-                              ? 'You will receive exclusive offers.'
-                              : 'Promotional messages turned off.',
-                        );
-                      }
-                    },
+                  : (value) => _setMarketingOptIn(user, value),
             ),
           ),
 

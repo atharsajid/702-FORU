@@ -3,6 +3,8 @@
 // These deliberately avoid Hive so they run without any platform channels:
 // formatting, validation, result/error mapping and a couple of shared widgets.
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -104,6 +106,14 @@ void main() {
       expect(restored.marketingOptIn, isFalse);
     });
 
+    test('compares structurally, not by id only', () {
+      // Riverpod's `select` compares selected values with `==`, so an id-only
+      // comparison would hide profile edits (e.g. the marketing toggle).
+      expect(user.copyWith(marketingOptIn: true), isNot(user));
+      expect(user.copyWith(fullName: 'Someone Else'), isNot(user));
+      expect(user.copyWith(), user);
+    });
+
     test('parses provider role safely', () {
       expect(UserRole.fromName('provider'), UserRole.provider);
       expect(UserRole.fromName('nonsense'), UserRole.user);
@@ -186,6 +196,33 @@ void main() {
 
       await tester.tap(find.byType(AppButton));
       expect(tapped, 0);
+    });
+  });
+
+  group('Routing', () {
+    test('every route the app pushes is registered in AppRouter', () {
+      final registered = RegExp(r'case AppRoutes\.([A-Za-z]+):')
+          .allMatches(
+            File('lib/core/router/app_router.dart').readAsStringSync(),
+          )
+          .map((match) => match.group(1)!)
+          .toSet();
+
+      final referenced = <String>{};
+      for (final entity in Directory('lib').listSync(recursive: true)) {
+        if (entity is! File || !entity.path.endsWith('.dart')) continue;
+        if (entity.path.endsWith('app_router.dart')) continue;
+        for (final match in RegExp(r'AppRoutes\.([A-Za-z]+)')
+            .allMatches(entity.readAsStringSync())) {
+          referenced.add(match.group(1)!);
+        }
+      }
+
+      expect(
+        referenced.difference(registered),
+        isEmpty,
+        reason: 'Unregistered routes fall through to the "Not found" screen.',
+      );
     });
   });
 }
