@@ -599,7 +599,7 @@ class _CouponCard extends StatelessWidget {
             ),
           ),
           const SizedBox(width: AppSpacing.sm),
-          AppButton(label: 'Redeem', size: AppButtonSize.small, variant: AppButtonVariant.outline, isFullWidth: false, onPressed: onRedeem),
+          AppButton(label: 'Redeem', size: AppButtonSize.small, variant: AppButtonVariant.outline, isFullWidth: false, onPressed: onRedeem, textColor: AppColors.white,),
         ],
       ),
     );
