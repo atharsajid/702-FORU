@@ -1,26 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:for_you/app/pages/splash_screen.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'app/pages/home.dart';
+import 'app.dart';
+import 'core/storage/hive_service.dart';
+import 'core/storage/local_seed.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  // Local-first: everything lives on device until a backend is introduced.
+  await HiveService.init();
+  await LocalSeed.runIfNeeded();
 
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return GetMaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: SplashScreen(),
-    );
-  }
+  runApp(const ProviderScope(child: ForYouApp()));
 }
