@@ -19,12 +19,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
-  final List<Widget> _pages = [
-    HomeScreenContent(),
-    CityPage(),
-    OrderPage(),
-    ProfilePage(),
-  ];
+  final List<Widget> _pages = [HomeScreenContent(), CityPage(), OrderPage(), ProfilePage()];
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +38,7 @@ class _HomePageState extends State<HomePage> {
       body:
           // _pages[_selectedIndex]
           HomeScreenContent(),
+
       // bottomNavigationBar: Container(
       //   decoration: BoxDecoration(
       //     color: Colors.white.withOpacity(0.65),
@@ -102,57 +98,21 @@ class _HomePageState extends State<HomePage> {
       // ),
       // ),
       // ),
-      
     );
   }
 }
 
 class HomeScreenContent extends StatelessWidget {
   final List<Map<String, String>> categories = [
-    {
-      'title': 'Arts & Culture',
-      'image': 'https://images.pexels.com/photos/21014/pexels-photo.jpg',
-    },
-    {
-      'title': 'Food & Drink',
-      'image':
-          'https://images.pexels.com/photos/315755/pexels-photo-315755.jpeg',
-    },
-    {
-      'title': 'Nightlife & Entertainment',
-      'image':
-          'https://images.pexels.com/photos/164821/pexels-photo-164821.jpeg',
-    },
-    {
-      'title': 'Health & Wellness',
-      'image':
-          'https://images.pexels.com/photos/40568/medical-appointment-doctor-healthcare-40568.jpeg',
-    },
-    {
-      'title': 'Shopping & Boutiques',
-      'image':
-          'https://images.pexels.com/photos/298863/pexels-photo-298863.jpeg',
-    },
-    {
-      'title': 'Outdoor Adventures',
-      'image':
-          'https://images.pexels.com/photos/414171/pexels-photo-414171.jpeg',
-    },
-    {
-      'title': 'Family & Kids Activities',
-      'image':
-          'https://images.pexels.com/photos/5081910/pexels-photo-5081910.jpeg',
-    },
-    {
-      'title': 'Fitness & Sports',
-      'image':
-          'https://images.pexels.com/photos/841130/pexels-photo-841130.jpeg',
-    },
-    {
-      'title': 'Local Services',
-      'image':
-          'https://images.pexels.com/photos/4386369/pexels-photo-4386369.jpeg',
-    },
+    {'title': 'Arts & Culture', 'image': 'https://images.pexels.com/photos/21014/pexels-photo.jpg'},
+    {'title': 'Food & Drink', 'image': 'https://images.pexels.com/photos/315755/pexels-photo-315755.jpeg'},
+    {'title': 'Nightlife & Entertainment', 'image': 'https://images.pexels.com/photos/164821/pexels-photo-164821.jpeg'},
+    {'title': 'Health & Wellness', 'image': 'https://images.pexels.com/photos/40568/medical-appointment-doctor-healthcare-40568.jpeg'},
+    {'title': 'Shopping & Boutiques', 'image': 'https://images.pexels.com/photos/298863/pexels-photo-298863.jpeg'},
+    {'title': 'Outdoor Adventures', 'image': 'https://images.pexels.com/photos/414171/pexels-photo-414171.jpeg'},
+    {'title': 'Family & Kids Activities', 'image': 'https://images.pexels.com/photos/5081910/pexels-photo-5081910.jpeg'},
+    {'title': 'Fitness & Sports', 'image': 'https://images.pexels.com/photos/841130/pexels-photo-841130.jpeg'},
+    {'title': 'Local Services', 'image': 'https://images.pexels.com/photos/4386369/pexels-photo-4386369.jpeg'},
   ];
 
   // Dummy businesses map keyed by category title.
@@ -163,8 +123,7 @@ class HomeScreenContent extends StatelessWidget {
       {
         "name": "Sunset Art Gallery",
         "image": "https://images.pexels.com/photos/21014/pexels-photo.jpg",
-        "logo":
-            "https://images.pexels.com/photos/936722/pexels-photo-936722.jpeg",
+        "logo": "https://images.pexels.com/photos/936722/pexels-photo-936722.jpeg",
         "rating": "4.8",
         "address": "123 Art St, Las Vegas",
         "description": "A beautiful gallery featuring modern art collections.",
@@ -176,19 +135,13 @@ class HomeScreenContent extends StatelessWidget {
         ],
         "reviews": [
           {"user": "Emily", "comment": "Loved the paintings!", "rating": 5},
-          {
-            "user": "John",
-            "comment": "Great artists and vibes!",
-            "rating": 4.5,
-          },
+          {"user": "John", "comment": "Great artists and vibes!", "rating": 4.5},
         ],
       },
       {
         "name": "Creative Minds Studio",
-        "image":
-            "https://images.pexels.com/photos/102127/pexels-photo-102127.jpeg",
-        "logo":
-            "https://images.pexels.com/photos/4348403/pexels-photo-4348403.jpeg",
+        "image": "https://images.pexels.com/photos/102127/pexels-photo-102127.jpeg",
+        "logo": "https://images.pexels.com/photos/4348403/pexels-photo-4348403.jpeg",
         "rating": "4.6",
         "address": "45 Gallery Ave",
         "description": "A studio offering creative workshops for all ages.",
@@ -207,10 +160,8 @@ class HomeScreenContent extends StatelessWidget {
     "Food & Drink": [
       {
         "name": "Burger House",
-        "image":
-            "https://images.pexels.com/photos/163956/food-salad-healthy-vegetables.jpg",
-        "logo":
-            "https://images.pexels.com/photos/163956/food-salad-healthy-vegetables.jpg",
+        "image": "https://images.pexels.com/photos/163956/food-salad-healthy-vegetables.jpg",
+        "logo": "https://images.pexels.com/photos/163956/food-salad-healthy-vegetables.jpg",
         "rating": "4.4",
         "address": "77 Flavor Road",
         "description": "Best burgers in town with homemade sauces.",
@@ -226,10 +177,8 @@ class HomeScreenContent extends StatelessWidget {
       },
       {
         "name": "Tasty Pizza",
-        "image":
-            "https://images.pexels.com/photos/2619967/pexels-photo-2619967.jpeg",
-        "logo":
-            "https://images.pexels.com/photos/2619967/pexels-photo-2619967.jpeg",
+        "image": "https://images.pexels.com/photos/2619967/pexels-photo-2619967.jpeg",
+        "logo": "https://images.pexels.com/photos/2619967/pexels-photo-2619967.jpeg",
         "rating": "4.7",
         "address": "12 Slice Street",
         "description": "Fresh pizzas baked in wood-fired ovens.",
@@ -248,10 +197,8 @@ class HomeScreenContent extends StatelessWidget {
     "Health & Wellness": [
       {
         "name": "Pure Yoga Studio",
-        "image":
-            "https://images.pexels.com/photos/3823039/pexels-photo-3823039.jpeg",
-        "logo":
-            "https://images.pexels.com/photos/4056723/pexels-photo-4056723.jpeg",
+        "image": "https://images.pexels.com/photos/3823039/pexels-photo-3823039.jpeg",
+        "logo": "https://images.pexels.com/photos/4056723/pexels-photo-4056723.jpeg",
         "rating": "4.9",
         "address": "88 Zen Road",
         "description": "Calming yoga studio with experienced instructors.",
@@ -267,10 +214,8 @@ class HomeScreenContent extends StatelessWidget {
       },
       {
         "name": "Healthy Life Clinic",
-        "image":
-            "https://images.pexels.com/photos/757880/pexels-photo-757880.jpeg",
-        "logo":
-            "https://images.pexels.com/photos/757880/pexels-photo-757880.jpeg",
+        "image": "https://images.pexels.com/photos/757880/pexels-photo-757880.jpeg",
+        "logo": "https://images.pexels.com/photos/757880/pexels-photo-757880.jpeg",
         "rating": "4.5",
         "address": "55 Care Blvd",
         "description": "General health checkups and wellness programs.",
@@ -289,10 +234,8 @@ class HomeScreenContent extends StatelessWidget {
     "Shopping": [
       {
         "name": "Fashion Zone",
-        "image":
-            "https://images.pexels.com/photos/2983464/pexels-photo-2983464.jpeg",
-        "logo":
-            "https://images.pexels.com/photos/2983464/pexels-photo-2983464.jpeg",
+        "image": "https://images.pexels.com/photos/2983464/pexels-photo-2983464.jpeg",
+        "logo": "https://images.pexels.com/photos/2983464/pexels-photo-2983464.jpeg",
         "rating": "4.3",
         "address": "99 Trendy Mall",
         "description": "Trendy clothes and accessories for all ages.",
@@ -391,10 +334,7 @@ class HomeScreenContent extends StatelessWidget {
           // Top row: time on left, sign-in button + notification on right
           Row(
             children: [
-              const Text(
-                "9:41",
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-              ),
+              const Text("9:41", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
               const Spacer(),
 
               // Sign In / Sign Up button — clearly visible
@@ -402,20 +342,12 @@ class HomeScreenContent extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.deepPurple, // prominent color
                   foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 8,
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   elevation: 3,
                 ),
                 onPressed: () => _showAuthDialog(context),
-                child: const Text(
-                  'Sign In / Sign Up',
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-                ),
+                child: const Text('Sign In / Sign Up', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
               ),
 
               const SizedBox(width: 10),
@@ -440,14 +372,8 @@ class HomeScreenContent extends StatelessWidget {
               prefixIcon: const Icon(Icons.search),
               filled: true,
               fillColor: Colors.grey[200],
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 12,
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: BorderSide.none,
-              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
             ),
           ),
         ],
@@ -464,9 +390,7 @@ class HomeScreenContent extends StatelessWidget {
       builder: (ctx) {
         return AlertDialog(
           title: const Text('Welcome to 702FORU'),
-          content: const Text(
-            'Choose an option to continue. (Replace with your auth flow)',
-          ),
+          content: const Text('Choose an option to continue. (Replace with your auth flow)'),
           actions: [
             TextButton(
               onPressed: () {
@@ -494,21 +418,18 @@ class HomeScreenContent extends StatelessWidget {
   // ⭐ 702FORU LOGO
   // -----------------------------------------------------------
   Widget _appLogo() {
-    return Padding(
+    return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
+      height: 200,
+      width: double.infinity,
       child: Card(
         color: AppColors.splashBackgroundColor,
         elevation: 4,
+        clipBehavior: Clip.hardEdge,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Center(
-            child: Image.asset(
-              "assets/logo.png", // your app logo
-              height: 130,
-              fit: BoxFit.contain,
-            ),
-          ),
+        child: Image.asset(
+          "assets/logo.png", // your app logo
+          fit: BoxFit.fill,
         ),
       ),
     );
@@ -522,10 +443,7 @@ class HomeScreenContent extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Container(
         height: 40,
-        decoration: BoxDecoration(
-          color: Colors.black87,
-          borderRadius: BorderRadius.circular(10),
-        ),
+        decoration: BoxDecoration(color: Colors.black87, borderRadius: BorderRadius.circular(10)),
         child: Row(
           children: [
             const SizedBox(width: 10),
@@ -565,35 +483,22 @@ class HomeScreenContent extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Container(
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.deepPurple,
-          borderRadius: BorderRadius.circular(14),
-        ),
+        decoration: BoxDecoration(color: Colors.deepPurple, borderRadius: BorderRadius.circular(14)),
         child: Row(
           children: [
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    "Exclusive 702FORU Offer",
-                    style: TextStyle(color: Colors.white70),
-                  ),
+                  const Text("Exclusive 702FORU Offer", style: TextStyle(color: Colors.white70)),
                   const SizedBox(height: 6),
                   const Text(
                     "Win Gifts & Discounts",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 10),
                   ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.black,
-                    ),
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: Colors.black),
                     onPressed: () {
                       // TODO: banner CTA
                     },
@@ -609,25 +514,14 @@ class HomeScreenContent extends StatelessWidget {
                 width: 90,
                 height: 90,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
-                  width: 90,
-                  height: 90,
-                  color: Colors.grey.shade300,
-                  child: const Icon(Icons.broken_image),
-                ),
+                errorBuilder: (_, __, ___) => Container(width: 90, height: 90, color: Colors.grey.shade300, child: const Icon(Icons.broken_image)),
                 loadingBuilder: (context, child, progress) {
                   if (progress == null) return child;
                   return Container(
                     width: 90,
                     height: 90,
                     color: Colors.grey.shade200,
-                    child: const Center(
-                      child: SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
-                    ),
+                    child: const Center(child: SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2))),
                   );
                 },
               ),
@@ -661,8 +555,7 @@ class HomeScreenContent extends StatelessWidget {
             tween: Tween<double>(begin: 0.7, end: 1),
             duration: Duration(milliseconds: 500 + index * 120),
             curve: Curves.easeOutBack,
-            builder: (context, scale, child) =>
-                Transform.scale(scale: scale, child: child),
+            builder: (context, scale, child) => Transform.scale(scale: scale, child: child),
             child: _sphereCard(context, item),
           );
         },
@@ -696,21 +589,11 @@ class HomeScreenContent extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: RadialGradient(
-                colors: [
-                  Colors.blueAccent.withOpacity(0.7),
-                  Colors.purpleAccent.withOpacity(0.6),
-                  Colors.deepPurple.withOpacity(0.4),
-                ],
+                colors: [Colors.blueAccent.withOpacity(0.7), Colors.purpleAccent.withOpacity(0.6), Colors.deepPurple.withOpacity(0.4)],
                 center: const Alignment(-0.3, -0.2),
                 radius: 1.1,
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.purple.withOpacity(0.25),
-                  blurRadius: 15,
-                  spreadRadius: 3,
-                ),
-              ],
+              boxShadow: [BoxShadow(color: Colors.purple.withOpacity(0.25), blurRadius: 15, spreadRadius: 3)],
             ),
             child: ClipOval(
               child: Image.network(
@@ -718,12 +601,7 @@ class HomeScreenContent extends StatelessWidget {
                 height: 80,
                 width: 80,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
-                  width: 80,
-                  height: 80,
-                  color: Colors.grey.shade300,
-                  child: const Icon(Icons.broken_image),
-                ),
+                errorBuilder: (_, __, ___) => Container(width: 80, height: 80, color: Colors.grey.shade300, child: const Icon(Icons.broken_image)),
               ),
             ),
           ),

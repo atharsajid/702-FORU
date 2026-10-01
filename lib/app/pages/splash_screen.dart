@@ -32,25 +32,19 @@ class _SplashScreenState extends State<SplashScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // App logo
-            Image.asset(
-              'assets/logo.png', // make sure logo.png is added in assets
-              height: 120,
+            SizedBox(
+              width: double.infinity,
+              child: Image.asset(
+                'assets/logo.png', // make sure logo.png is added in assets
+              ),
             ),
             const SizedBox(height: 20),
             const Text(
               "FixIt Services",
-              style: TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-                letterSpacing: 1.2,
-              ),
+              style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 1.2),
             ),
             const SizedBox(height: 15),
-            const CircularProgressIndicator(
-              color: Colors.white,
-              strokeWidth: 2.5,
-            ),
+            const CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
           ],
         ),
       ),
