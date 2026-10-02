@@ -29,13 +29,8 @@ class HomeTab extends ConsumerWidget {
     'New businesses added to 702FORU today',
     'Free Things To Do: updated weekly',
   ];
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final categories = ref.watch(categoriesProvider);
-    final heroOffer = ref.watch(heroOfferProvider);
-    final sponsored = ref.watch(sponsoredBusinessesProvider);
-
     return Scaffold(
       backgroundColor: AppColors.background,
       body: RefreshIndicator(
@@ -44,17 +39,12 @@ class HomeTab extends ConsumerWidget {
           ref.invalidate(categoriesProvider);
           ref.invalidate(offersProvider);
           ref.invalidate(sponsoredBusinessesProvider);
-          await Future.wait([
-            ref.read(categoriesProvider.future),
-            ref.read(offersProvider.future),
-          ]);
+          await Future.wait([ref.read(categoriesProvider.future), ref.read(offersProvider.future)]);
         },
         child: SafeArea(
           bottom: false,
           child: CustomScrollView(
-            physics: const BouncingScrollPhysics(
-              parent: AlwaysScrollableScrollPhysics(),
-            ),
+            physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
             slivers: [
               const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.sm)),
               const SliverToBoxAdapter(child: _HomeHeader()),
@@ -63,38 +53,34 @@ class HomeTab extends ConsumerWidget {
               const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),
 
               // Brand banner → About 702FORU
-              SliverToBoxAdapter(
-                child: BrandBanner(
-                  onTap: () =>
-                      Navigator.of(context).pushNamed(AppRoutes.about),
-                ),
-              ),
+              SliverToBoxAdapter(child: BrandBanner(onTap: () => Navigator.of(context).pushNamed(AppRoutes.about))),
 
               const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),
 
               // RSS / news ticker (Home only)
-              const SliverToBoxAdapter(
-                child: RssMarquee(items: _rssItems,
-                
-                ),
-              ),
+              const SliverToBoxAdapter(child: RssMarquee(items: _rssItems)),
 
               const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),
 
               // Exclusive offer banner → Explore Now
               SliverToBoxAdapter(
-                child: heroOffer.maybeWhen(
-                  data: (offer) => offer == null
-                      ? const SizedBox.shrink()
-                      : OfferBanner(
-                          title: offer.title,
-                          subtitle: offer.subtitle,
-                          imageUrl: offer.imageUrl,
-                          ctaLabel: offer.ctaLabel,
-                          onPressed: () => Navigator.of(context)
-                              .pushNamed(AppRoutes.offers),
-                        ),
-                  orElse: () => const _BannerSkeleton(),
+                child: Consumer(
+                  builder: (context, ref, child) {
+                    final heroOffer = ref.watch(heroOfferProvider);
+
+                    return heroOffer.maybeWhen(
+                      data: (offer) => offer == null
+                          ? const SizedBox.shrink()
+                          : OfferBanner(
+                              title: offer.title,
+                              subtitle: offer.subtitle,
+                              imageUrl: offer.imageUrl,
+                              ctaLabel: offer.ctaLabel,
+                              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.offers),
+                            ),
+                      orElse: () => const _BannerSkeleton(),
+                    );
+                  },
                 ),
               ),
 
@@ -103,20 +89,24 @@ class HomeTab extends ConsumerWidget {
                   title: 'Explore Categories',
                   subtitle: 'Tap a sphere to discover local businesses',
                   actionLabel: 'See all',
-                  onAction: () =>
-                      Navigator.of(context).pushNamed(AppRoutes.allCategories),
+                  onAction: () => Navigator.of(context).pushNamed(AppRoutes.allCategories),
                 ),
               ),
 
               SliverToBoxAdapter(
-                child: AsyncValueView<List<Category>>(
-                  value: categories,
-                  onRetry: () => ref.invalidate(categoriesProvider),
-                  builder: (context, list) => CategorySphereGrid(
-                    categories: list,
-                    onCategoryTap: (category) => Navigator.of(context)
-                        .pushNamed(AppRoutes.category, arguments: category),
-                  ),
+                child: Consumer(
+                  builder: (context, ref, child) {
+                    final categories = ref.watch(categoriesProvider);
+
+                    return AsyncValueView<List<Category>>(
+                      value: categories,
+                      onRetry: () => ref.invalidate(categoriesProvider),
+                      builder: (context, list) => CategorySphereGrid(
+                        categories: list,
+                        onCategoryTap: (category) => Navigator.of(context).pushNamed(AppRoutes.category, arguments: category),
+                      ),
+                    );
+                  },
                 ),
               ),
 
@@ -125,52 +115,48 @@ class HomeTab extends ConsumerWidget {
                   title: 'Spotlight Businesses',
                   subtitle: 'Featured partners this week',
                   actionLabel: 'Browse',
-                  onAction: () =>
-                      Navigator.of(context).pushNamed(AppRoutes.search),
+                  onAction: () => Navigator.of(context).pushNamed(AppRoutes.search),
                 ),
               ),
 
               SliverToBoxAdapter(
-                child: AsyncValueView(
-                  value: sponsored,
-                  onRetry: () => ref.invalidate(sponsoredBusinessesProvider),
-                  builder: (context, list) {
-                    if (list.isEmpty) {
-                      return const AppEmptyState(
-                        title: 'No spotlight businesses yet',
-                        message: 'Check back soon — we add new partners weekly.',
-                        icon: Icons.storefront_outlined,
-                      );
-                    }
-                    final cardWidth = context.responsive(
-                      mobile: 190.0,
-                      tablet: 220.0,
-                    );
-                    return SizedBox(
-                      height: 214,
-                      child: ListView.separated(
-                        scrollDirection: Axis.horizontal,
-                        physics: const BouncingScrollPhysics(),
-                        padding: EdgeInsets.symmetric(
-                          horizontal: context.pagePadding,
-                        ),
-                        itemCount: list.length,
-                        separatorBuilder: (_, __) =>
-                            const SizedBox(width: AppSpacing.md),
-                        itemBuilder: (context, index) {
-                          final business = list[index];
-                          return SizedBox(
-                            width: cardWidth,
-                            child: BusinessCard(
-                              business: business,
-                              onTap: () => Navigator.of(context).pushNamed(
-                                AppRoutes.business,
-                                arguments: business.id,
-                              ),
-                            ),
+                child: Consumer(
+                  builder: (context, ref, child) {
+                    final sponsored = ref.watch(sponsoredBusinessesProvider);
+
+                    return AsyncValueView(
+                      value: sponsored,
+                      onRetry: () => ref.invalidate(sponsoredBusinessesProvider),
+                      builder: (context, list) {
+                        if (list.isEmpty) {
+                          return const AppEmptyState(
+                            title: 'No spotlight businesses yet',
+                            message: 'Check back soon — we add new partners weekly.',
+                            icon: Icons.storefront_outlined,
                           );
-                        },
-                      ),
+                        }
+                        final cardWidth = context.responsive(mobile: 190.0, tablet: 220.0);
+                        return SizedBox(
+                          height: 214,
+                          child: ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            physics: const BouncingScrollPhysics(),
+                            padding: EdgeInsets.symmetric(horizontal: context.pagePadding),
+                            itemCount: list.length,
+                            separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.md),
+                            itemBuilder: (context, index) {
+                              final business = list[index];
+                              return SizedBox(
+                                width: cardWidth,
+                                child: BusinessCard(
+                                  business: business,
+                                  onTap: () => Navigator.of(context).pushNamed(AppRoutes.business, arguments: business.id),
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      },
                     );
                   },
                 ),
@@ -209,12 +195,7 @@ class _HomeHeader extends ConsumerWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 2),
-                Text(
-                  'Your Vegas, ready.',
-                  style: text.headlineMedium,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
+                Text('Your Vegas, ready.', style: text.headlineMedium, maxLines: 1, overflow: TextOverflow.ellipsis),
               ],
             ),
           ),
@@ -224,23 +205,15 @@ class _HomeHeader extends ConsumerWidget {
               label: 'Sign In',
               size: AppButtonSize.small,
               isFullWidth: false,
-              onPressed: () =>
-                  Navigator.of(context).pushNamed(AppRoutes.login),
+              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.login),
             )
           else
             GestureDetector(
               onTap: () => Navigator.of(context).pushNamed(AppRoutes.profile),
-              child: AppAvatar(
-                imageUrl: user.avatarUrl,
-                initials: user.initials,
-                size: 38,
-              ),
+              child: AppAvatar(imageUrl: user.avatarUrl, initials: user.initials, size: 38),
             ),
           const SizedBox(width: AppSpacing.xs),
-          NotificationBell(
-            onTap: () =>
-                Navigator.of(context).pushNamed(AppRoutes.notifications),
-          ),
+          NotificationBell(onTap: () => Navigator.of(context).pushNamed(AppRoutes.notifications)),
         ],
       ),
     );
@@ -260,19 +233,13 @@ class _HomeSearchBar extends StatelessWidget {
         child: AbsorbPointer(
           child: Container(
             height: 46,
-            decoration: BoxDecoration(
-              color: AppColors.surfaceMuted,
-              borderRadius: BorderRadius.circular(AppRadius.pill),
-            ),
+            decoration: BoxDecoration(color: AppColors.surfaceMuted, borderRadius: BorderRadius.circular(AppRadius.pill)),
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
             child: Row(
               children: [
                 const Icon(Icons.search, size: 20, color: AppColors.grey),
                 const SizedBox(width: AppSpacing.sm),
-                Text(
-                  'Search businesses, services, events…',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
+                Text('Search businesses, services, events…', style: Theme.of(context).textTheme.bodyMedium),
               ],
             ),
           ),
@@ -292,10 +259,7 @@ class _BannerSkeleton extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: context.pagePadding),
       child: Container(
         height: 128,
-        decoration: BoxDecoration(
-          color: AppColors.surfaceMuted,
-          borderRadius: BorderRadius.circular(AppRadius.lg),
-        ),
+        decoration: BoxDecoration(color: AppColors.surfaceMuted, borderRadius: BorderRadius.circular(AppRadius.lg)),
       ),
     );
   }

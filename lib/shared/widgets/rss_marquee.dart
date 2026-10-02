@@ -9,22 +9,14 @@ import '../../core/theme/app_dimensions.dart';
 /// The label is measured with a [TextPainter] and repeated just enough times to
 /// fill the strip, then translated by exactly one copy width – giving a
 /// seamless, allocation-free loop that only rebuilds a transform.
-class RssMarquee extends StatefulWidget {
+class RssMarquee extends StatelessWidget {
   const RssMarquee({super.key, required this.items, this.height = 38, this.onTap});
 
   final List<String> items;
   final double height;
   final VoidCallback? onTap;
-
-  @override
-  State<RssMarquee> createState() => _RssMarqueeState();
-}
-
-class _RssMarqueeState extends State<RssMarquee> {
-  static const TextStyle _style = TextStyle(color: AppColors.white, fontSize: 13.5, fontWeight: FontWeight.w500);
-
   String get _label {
-    final text = widget.items.map((e) => e.trim()).where((e) => e.isNotEmpty).join('     •     ');
+    final text = items.map((e) => e.trim()).where((e) => e.isNotEmpty).join('     •     ');
     if (text.isEmpty) return '702FORU — Your Vegas, ready.';
     return '$text     •     ';
   }
@@ -33,17 +25,22 @@ class _RssMarqueeState extends State<RssMarquee> {
   Widget build(BuildContext context) {
     final label = _label;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.page),
-      child: Material(
-        color: AppColors.navyDark,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: widget.onTap,
-          child: SizedBox(
-            height: widget.height,
-            child: Marquee(text: label, style: _style),
+    return RepaintBoundary(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.page),
+        child: Material(
+          color: AppColors.navyDark,
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: onTap,
+            child: SizedBox(
+              height: height,
+              child: Marquee(
+                text: label,
+                style: TextStyle(color: AppColors.white, fontSize: 13.5, fontWeight: FontWeight.w500),
+              ),
+            ),
           ),
         ),
       ),

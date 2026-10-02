@@ -12,12 +12,7 @@ import 'app_network_image.dart';
 /// carries a slowly drifting gradient so the grid feels alive without costing
 /// frames – only the decoration rebuilds, never the image.
 class CategorySphere extends StatefulWidget {
-  const CategorySphere({
-    super.key,
-    required this.category,
-    required this.onTap,
-    this.animationDelay = Duration.zero,
-  });
+  const CategorySphere({super.key, required this.category, required this.onTap, this.animationDelay = Duration.zero});
 
   final Category category;
   final VoidCallback onTap;
@@ -27,32 +22,7 @@ class CategorySphere extends StatefulWidget {
   State<CategorySphere> createState() => _CategorySphereState();
 }
 
-class _CategorySphereState extends State<CategorySphere>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _glow;
-  late final Animation<double> _entrance;
-
-  @override
-  void initState() {
-    super.initState();
-    _glow = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 6),
-    );
-    _entrance = CurvedAnimation(parent: _glow, curve: Curves.easeOutBack);
-
-    // Stagger the entrance so the grid "pops" in sequence.
-    Future<void>.delayed(widget.animationDelay, () {
-      if (mounted) _glow.repeat(reverse: true);
-    });
-  }
-
-  @override
-  void dispose() {
-    _glow.dispose();
-    super.dispose();
-  }
-
+class _CategorySphereState extends State<CategorySphere> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -66,41 +36,27 @@ class _CategorySphereState extends State<CategorySphere>
             mainAxisSize: MainAxisSize.min,
             children: [
               // Scale-in entrance, then a continuous soft glow behind the ball.
-              ScaleTransition(
-                scale: Tween<double>(begin: 0.86, end: 1).animate(_entrance),
-                child: AnimatedBuilder(
-                  animation: _glow,
-                  builder: (context, child) {
-                    final t = _glow.value;
-                    return Container(
-                      height: sphereSize,
-                      width: sphereSize,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: RadialGradient(
-                          center: Alignment(-0.3 + 0.4 * t, -0.35 + 0.4 * t),
-                          radius: 1.15,
-                          colors: [
-                            AppColors.sphereGradient[0],
-                            AppColors.sphereGradient[1],
-                            AppColors.sphereGradient[2],
-                          ],
-                          stops: [0.05, 0.55, 1],
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.purple
-                                .withValues(alpha: 0.22 + 0.12 * t),
-                            blurRadius: 14 + 8 * t,
-                            spreadRadius: 1 + 2 * t,
-                          ),
-                        ],
+              SizedBox(
+                child: Container(
+                  height: sphereSize,
+                  width: sphereSize,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      center: Alignment.center,
+                      radius: 1.15,
+                      colors: [AppColors.sphereGradient[0], AppColors.sphereGradient[1], AppColors.sphereGradient[2]],
+                      stops: [0.05, 0.55, 1],
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.purple.withValues(alpha: 0.22 + 0.12 ),
+                        blurRadius: 14 + 8 ,
+                        spreadRadius: 1 + 2 ,
                       ),
-                      padding: const EdgeInsets.all(3),
-                      child: child,
-                    );
-                  },
-                  // Built once – never rebuilt by the animation.
+                    ],
+                  ),
+                  padding: const EdgeInsets.all(3),
                   child: ClipOval(
                     child: AppNetworkImage(
                       url: widget.category.imageUrl,
@@ -118,12 +74,7 @@ class _CategorySphereState extends State<CategorySphere>
                   textAlign: TextAlign.center,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    height: 1.25,
-                    color: AppColors.textPrimary,
-                  ),
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, height: 1.25, color: AppColors.textPrimary),
                 ),
               ),
             ],
@@ -136,13 +87,7 @@ class _CategorySphereState extends State<CategorySphere>
 
 /// Responsive sphere grid. Overflow-proof: the label flexes, never clips.
 class CategorySphereGrid extends StatelessWidget {
-  const CategorySphereGrid({
-    super.key,
-    required this.categories,
-    required this.onCategoryTap,
-    this.shrinkWrap = true,
-    this.padding,
-  });
+  const CategorySphereGrid({super.key, required this.categories, required this.onCategoryTap, this.shrinkWrap = true, this.padding});
 
   final List<Category> categories;
   final ValueChanged<Category> onCategoryTap;
@@ -155,11 +100,8 @@ class CategorySphereGrid extends StatelessWidget {
 
     return GridView.builder(
       shrinkWrap: shrinkWrap,
-      physics: shrinkWrap
-          ? const NeverScrollableScrollPhysics()
-          : const BouncingScrollPhysics(),
-      padding: padding ??
-          EdgeInsets.symmetric(horizontal: context.pagePadding),
+      physics: shrinkWrap ? const NeverScrollableScrollPhysics() : const BouncingScrollPhysics(),
+      padding: padding ?? EdgeInsets.symmetric(horizontal: context.pagePadding),
       itemCount: categories.length,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: columns,
