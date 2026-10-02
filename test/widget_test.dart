@@ -12,9 +12,11 @@ import 'package:for_you/core/error/error_handler.dart';
 import 'package:for_you/core/error/exceptions.dart';
 import 'package:for_you/core/error/failures.dart';
 import 'package:for_you/core/utils/formatters.dart';
+import 'package:for_you/core/utils/image_url.dart';
 import 'package:for_you/core/utils/validators.dart';
 import 'package:for_you/features/auth/domain/entities/app_user.dart';
 import 'package:for_you/shared/widgets/app_button.dart';
+import 'package:for_you/shared/widgets/app_network_image.dart';
 
 void main() {
   group('Validators', () {
@@ -223,6 +225,63 @@ void main() {
         isEmpty,
         reason: 'Unregistered routes fall through to the "Not found" screen.',
       );
+    });
+  });
+
+  group('ImageUrl', () {
+    const pexels =
+        'https://images.pexels.com/photos/1674049/pexels-photo-1674049.jpeg';
+
+    test('asks a resize-capable CDN for a compressed, right-sized file', () {
+      final uri = Uri.parse(ImageUrl.optimized(pexels, width: 400, height: 250));
+
+      expect(uri.host, 'images.pexels.com');
+      expect(uri.path, '/photos/1674049/pexels-photo-1674049.jpeg');
+      expect(uri.queryParameters, containsPair('auto', 'compress'));
+      expect(uri.queryParameters['w'], '400');
+      expect(uri.queryParameters['h'], '250');
+    });
+
+    test('omits the dimensions it was not given', () {
+      final uri = Uri.parse(ImageUrl.optimized(pexels, width: 400));
+
+      expect(uri.queryParameters['w'], '400');
+      expect(uri.queryParameters.containsKey('h'), isFalse);
+    });
+
+    test('leaves hosts it does not understand untouched', () {
+      const other = 'https://cdn.example.com/a/photo.jpg';
+      expect(ImageUrl.optimized(other, width: 400), other);
+    });
+
+    test('keeps query parameters the url already carried', () {
+      final uri = Uri.parse(ImageUrl.optimized('$pexels?foo=bar', width: 400));
+
+      expect(uri.queryParameters['foo'], 'bar');
+      expect(uri.queryParameters['w'], '400');
+    });
+
+    test('returns input it cannot use unchanged', () {
+      expect(ImageUrl.optimized(''), '');
+      expect(ImageUrl.optimized('   '), '');
+      expect(ImageUrl.optimized('not-a-url'), 'not-a-url');
+    });
+  });
+
+  group('AppNetworkImage', () {
+    testWidgets('shows a broken-image placeholder when there is no url', (
+      tester,
+    ) async {
+      // The empty-url path must never reach for the network.
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: AppNetworkImage(url: '   ', width: 64, height: 64),
+          ),
+        ),
+      );
+
+      expect(find.byIcon(Icons.broken_image_outlined), findsOneWidget);
     });
   });
 }
