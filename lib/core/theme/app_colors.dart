@@ -27,6 +27,7 @@ class AppColors {
   // ── Neutrals ──────────────────────────────────────────────────────────
   static const Color white = Color(0xFFFFFFFF);
   static const Color black = Color(0xFF0B0B0F);
+  static const Color transparent = Color(0x00000000);
   static const Color grey = Color(0xFF9E9E9E);
   static const Color greyLight = Color(0xFFE3E3EA);
   static const Color greyDark = Color(0xFF424242);
@@ -60,11 +61,31 @@ class AppColors {
     end: Alignment.bottomRight,
   );
 
-  /// Radial gradient applied behind every category "sphere".
-  static const List<Color> sphereGradient = [
-    Color(0xFFB98CFF),
-    Color(0xFF7B2FF7),
+  // ── Category spheres ──────────────────────────────────────────────────
+  /// Glossy rim around a category photo: a specular highlight riding the top,
+  /// deep violet rolling off the bottom.
+  static const Color sphereHighlight = Color(0xFFF3EBFF);
+
+  /// Shadow the rim casts over the photo it frames.
+  static const Color sphereRecess = Color(0xFF2B0F5E);
+
+  /// Halo bleeding out of every sphere – a tight violet core plus a wide
+  /// bloom. Alphas are baked in; both layers sit *behind* the rim.
+  static const Color sphereGlow = Color(0x7A7B2FF7);
+  static const Color sphereGlowBloom = Color(0x38A855F7);
+
+  /// Rim shading, clockwise from the top of the sphere: highlight → vivid
+  /// violet → deepest violet, then mirrored back so the sweep closes without a
+  /// seam.
+  static const List<Color> sphereRimGradient = [
+    sphereHighlight,
+    Color(0xFFCFAEFF),
+    Color(0xFFA56CFA),
+    purple,
     Color(0xFF4C1D95),
+    purple,
+    Color(0xFFA56CFA),
+    Color(0xFFCFAEFF),
   ];
 
   /// Radial gradient applied to category spheres that have no photo yet.
