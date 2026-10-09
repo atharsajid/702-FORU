@@ -62,31 +62,40 @@ class AppColors {
   );
 
   // ── Category spheres ──────────────────────────────────────────────────
-  /// Glossy rim around a category photo: a specular highlight riding the top,
-  /// deep violet rolling off the bottom.
-  static const Color sphereHighlight = Color(0xFFF3EBFF);
+  /// Hot specular riding the rim of every category sphere.
+  static const Color sphereHighlight = Color(0xFFF7F1FF);
 
-  /// Shadow the rim casts over the photo it frames.
+  /// Violet the rim and its shadows settle into away from the light.
   static const Color sphereRecess = Color(0xFF2B0F5E);
 
-  /// Halo bleeding out of every sphere – a tight violet core plus a wide
-  /// bloom. Alphas are baked in; both layers sit *behind* the rim.
-  static const Color sphereGlow = Color(0x7A7B2FF7);
-  static const Color sphereGlowBloom = Color(0x38A855F7);
+  /// Halo bleeding out of every sphere – a saturated core plus a wide bloom.
+  /// Alphas are baked in; both layers sit *behind* the rim.
+  static const Color sphereGlow = Color(0x997B2FF7);
+  static const Color sphereGlowBloom = Color(0x40A855F7);
 
-  /// Rim shading, clockwise from the top of the sphere: highlight → vivid
-  /// violet → deepest violet, then mirrored back so the sweep closes without a
-  /// seam.
-  static const List<Color> sphereRimGradient = [
-    sphereHighlight,
-    Color(0xFFCFAEFF),
-    Color(0xFFA56CFA),
-    purple,
-    Color(0xFF4C1D95),
-    purple,
-    Color(0xFFA56CFA),
-    Color(0xFFCFAEFF),
-  ];
+  /// Rim lighting for every category sphere.
+  ///
+  /// Runs across the ball on the light's own axis – brightest at the top with a
+  /// lean to the right, rolling through vivid violet into a deep shadow at the
+  /// bottom – which is what makes the rim read as a convex tube rather than a
+  /// flat band. Stops bunch up at the dark end so the shadow has a soft
+  /// shoulder instead of a hard terminator.
+  static const LinearGradient sphereRimGradient = LinearGradient(
+    begin: Alignment(0.45, -1),
+    end: Alignment(-0.45, 1),
+    colors: [
+      white,
+      sphereHighlight,
+      Color(0xFFE6D8FF),
+      Color(0xFFCFAEFF),
+      Color(0xFFA56CFA),
+      Color(0xFF8340E0),
+      Color(0xFF5B1FB8),
+      Color(0xFF45158A),
+      Color(0xFF340F6B),
+    ],
+    stops: [0, 0.09, 0.22, 0.34, 0.47, 0.60, 0.74, 0.88, 1],
+  );
 
   /// Radial gradient applied to category spheres that have no photo yet.
   static const List<Color> spherePlaceholderGradient = [

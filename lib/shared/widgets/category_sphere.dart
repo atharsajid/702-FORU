@@ -10,14 +10,14 @@ import 'app_network_image.dart';
 
 /// A single category "sphere".
 ///
-/// The photo is set *inside* a thick, glossy violet rim: lit from above, rolling
-/// off to deep violet at the bottom, with a bright lip where the rim meets the
-/// photo and a dark recess where it overhangs it. The ball is then wrapped in a
-/// soft halo that bleeds into the background.
+/// A photo set down inside a thick, glossy violet rim. The light comes from the
+/// top right: the rim is near-white where it catches it, rolls through vivid
+/// violet and buries the bottom left in shadow, while the photo sits in its own
+/// recess, shaded away from the light. A soft halo blooms into the page.
 ///
-/// Every dimension is derived from the laid-out tile, so the effect holds at any
-/// size and column count. The decoration is static, so the grid costs nothing
-/// per frame.
+/// Every dimension comes from the laid-out tile, so the effect holds at any size
+/// and column count. The decoration is static, so the grid costs nothing per
+/// frame.
 class CategorySphere extends StatelessWidget {
   const CategorySphere({super.key, required this.category, required this.onTap});
 
@@ -25,10 +25,10 @@ class CategorySphere extends StatelessWidget {
   final VoidCallback onTap;
 
   /// Rim thickness as a share of the sphere's diameter.
-  static const double _rimRatio = 0.075;
+  static const double _rimRatio = 0.085;
 
-  /// Halo radii, as a share of the sphere's diameter.
-  static const double _glowBlur = 0.11;
+  /// Halo blurs, as a share of the sphere's diameter.
+  static const double _glowBlur = 0.10;
   static const double _bloomBlur = 0.28;
 
   @override
@@ -38,7 +38,7 @@ class CategorySphere extends StatelessWidget {
         final sphereSize = constraints.maxWidth * 0.68;
         // Never thinner than 3pt, and never so thick that the photo vanishes.
         final rimWidth = math.min(math.max(sphereSize * _rimRatio, 3.0), sphereSize * 0.225);
-        // Rim thickness and where the photo starts, in sphere radii.
+        // Rim thickness and where the photo starts, both in sphere radii.
         final rim = rimWidth * 2 / sphereSize;
         final inner = 1 - rim;
 
@@ -54,11 +54,7 @@ class CategorySphere extends StatelessWidget {
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    // Rim lighting runs clockwise from the top of the ball.
-                    gradient: const SweepGradient(
-                      colors: AppColors.sphereRimGradient,
-                      transform: GradientRotation(-math.pi / 2),
-                    ),
+                    gradient: AppColors.sphereRimGradient,
                     boxShadow: [
                       BoxShadow(
                         color: AppColors.sphereGlow,
@@ -68,28 +64,66 @@ class CategorySphere extends StatelessWidget {
                       BoxShadow(
                         color: AppColors.sphereGlowBloom,
                         blurRadius: sphereSize * _bloomBlur,
-                        spreadRadius: sphereSize * 0.02,
+                        spreadRadius: sphereSize * 0.022,
                       ),
                     ],
                   ),
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
+                      // Sheen where the light first strikes the rim, painted
+                      // under the photo so it only ever shows on the rim.
+                      DecoratedBox(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: RadialGradient(
+                            // Sits on the rim itself at 1.30: the ball's 45°
+                            // point is half a box out on both axes.
+                            center: const Alignment(0.5, -0.5),
+                            radius: 0.24,
+                            colors: [
+                              AppColors.white.withValues(alpha: 0.55),
+                              AppColors.transparent,
+                            ],
+                          ),
+                        ),
+                      ),
                       // The rim is painted *under* an inset photo, so it reads as
                       // a raised ring the picture sits down inside of.
                       Padding(
                         padding: EdgeInsets.all(rimWidth),
                         child: ClipOval(
-                          child: AppNetworkImage(
-                            url: category.imageUrl,
-                            width: double.infinity,
-                            height: double.infinity,
-                            placeholderIcon: Icons.category_outlined,
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              AppNetworkImage(
+                                url: category.imageUrl,
+                                width: double.infinity,
+                                height: double.infinity,
+                                placeholderIcon: Icons.category_outlined,
+                              ),
+                              // Shade falling across the photo, away from the
+                              // light: the rim casts it in towards bottom left.
+                              DecoratedBox(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topRight,
+                                    end: Alignment.bottomLeft,
+                                    colors: [
+                                      AppColors.transparent,
+                                      AppColors.transparent,
+                                      AppColors.sphereRecess.withValues(alpha: 0.32),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
-                      // Bevel, painted over photo and rim alike: recess under the
-                      // overhang, bright lip at the seam, darker silhouette.
+                      // Cross-section of the rim, painted over photo and rim
+                      // alike: recess under the overhang, a lit lip where the
+                      // tube turns back towards the light, then the silhouette.
                       DecoratedBox(
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
@@ -102,21 +136,21 @@ class CategorySphere extends StatelessWidget {
                               AppColors.transparent,
                               AppColors.transparent,
                               AppColors.sphereRecess.withValues(alpha: 0.30),
-                              AppColors.sphereRecess.withValues(alpha: 0.48),
+                              AppColors.sphereRecess.withValues(alpha: 0.55),
                               AppColors.transparent,
-                              AppColors.sphereHighlight.withValues(alpha: 0.85),
+                              AppColors.white.withValues(alpha: 0.60),
                               AppColors.transparent,
-                              AppColors.sphereRecess.withValues(alpha: 0.12),
-                              AppColors.sphereRecess.withValues(alpha: 0.26),
+                              AppColors.sphereRecess.withValues(alpha: 0.06),
+                              AppColors.sphereRecess.withValues(alpha: 0.14),
                             ],
                             stops: [
                               0,
-                              inner - 0.085,
-                              inner - 0.010,
+                              inner - 0.09,
+                              inner - 0.014,
                               inner,
                               inner + rim * 0.10,
-                              inner + rim * 0.16,
-                              inner + rim * 0.46,
+                              inner + rim * 0.18,
+                              inner + rim * 0.55,
                               inner + rim * 0.80,
                               1,
                             ],
