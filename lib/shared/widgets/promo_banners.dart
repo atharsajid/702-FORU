@@ -12,7 +12,7 @@ class BrandBanner extends StatelessWidget {
     super.key,
     required this.onTap,
     this.imageAsset = 'assets/logo.png',
-    this.height = 200,
+    this.height = 250,
   });
 
   final VoidCallback onTap;
@@ -23,8 +23,8 @@ class BrandBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.page),
-      child: AspectRatio(
-        aspectRatio: 16 / 9,
+      child: SizedBox(
+        height: height,
         child: Material(
           color: AppColors.navy,
           borderRadius: BorderRadius.circular(AppRadius.lg),
@@ -34,41 +34,7 @@ class BrandBanner extends StatelessWidget {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                Image.asset(imageAsset, fit: BoxFit.cover),
-                // Subtle "watch animation" affordance, matching iOS chrome.
-                // Positioned(
-                //   left: AppSpacing.md,
-                //   top: AppSpacing.md,
-                //   child: Container(
-                //     padding: const EdgeInsets.symmetric(
-                //       horizontal: AppSpacing.sm,
-                //       vertical: 3,
-                //     ),
-                //     decoration: BoxDecoration(
-                //       color: AppColors.black.withValues(alpha: 0.35),
-                //       borderRadius: BorderRadius.circular(AppRadius.pill),
-                //     ),
-                //     child: const Row(
-                //       mainAxisSize: MainAxisSize.min,
-                //       children: [
-                //         Icon(
-                //           Icons.play_circle_outline,
-                //           size: 13,
-                //           color: AppColors.white,
-                //         ),
-                //         SizedBox(width: AppSpacing.xs),
-                //         Text(
-                //           'Watch Animation',
-                //           style: TextStyle(
-                //             fontSize: 10.5,
-                //             fontWeight: FontWeight.w600,
-                //             color: AppColors.white,
-                //           ),
-                //         ),
-                //       ],
-                //     ),
-                //   ),
-                // ),
+                Image.asset(imageAsset, fit: BoxFit.fill),
               ],
             ),
           ),

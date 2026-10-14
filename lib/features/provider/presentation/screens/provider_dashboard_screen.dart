@@ -13,7 +13,6 @@ import '../../../../shared/widgets/app_network_image.dart';
 import '../../../../shared/widgets/app_rating.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../../catalog/domain/entities/business.dart';
-import '../../../catalog/presentation/providers/catalog_providers.dart';
 import '../providers/provider_providers.dart';
 
 /// Business owner's control centre.

@@ -29,7 +29,7 @@ class CategorySphere extends StatelessWidget {
 
   /// Halo blurs, as a share of the sphere's diameter.
   static const double _glowBlur = 0.10;
-  static const double _bloomBlur = 0.28;
+  static const double _bloomBlur = 10;
 
   @override
   Widget build(BuildContext context) {
@@ -49,49 +49,23 @@ class CategorySphere extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               SizedBox(
-                width: sphereSize,
-                height: sphereSize,
+                width: 110,
+                height: 110,
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    gradient: AppColors.sphereRimGradient,
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.sphereGlow,
-                        blurRadius: sphereSize * _glowBlur,
-                        spreadRadius: sphereSize * 0.01,
-                      ),
-                      BoxShadow(
-                        color: AppColors.sphereGlowBloom,
-                        blurRadius: sphereSize * _bloomBlur,
-                        spreadRadius: sphereSize * 0.022,
-                      ),
-                    ],
+                    boxShadow: [BoxShadow(color: AppColors.sphereGlow.withAlpha(75), blurRadius: 15, spreadRadius: 0, offset: Offset(-1, 2))],
                   ),
                   child: Stack(
                     fit: StackFit.expand,
+                    alignment: Alignment.center,
                     children: [
-                      // Sheen where the light first strikes the rim, painted
-                      // under the photo so it only ever shows on the rim.
-                      DecoratedBox(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: RadialGradient(
-                            // Sits on the rim itself at 1.30: the ball's 45°
-                            // point is half a box out on both axes.
-                            center: const Alignment(0.5, -0.5),
-                            radius: 0.24,
-                            colors: [
-                              AppColors.white.withValues(alpha: 0.55),
-                              AppColors.transparent,
-                            ],
-                          ),
-                        ),
-                      ),
+                      Image.asset("assets/ring_image.png", fit: BoxFit.contain),
+
                       // The rim is painted *under* an inset photo, so it reads as
                       // a raised ring the picture sits down inside of.
                       Padding(
-                        padding: EdgeInsets.all(rimWidth),
+                        padding: EdgeInsets.all(12.5),
                         child: ClipOval(
                           child: Stack(
                             fit: StackFit.expand,
@@ -109,50 +83,10 @@ class CategorySphere extends StatelessWidget {
                                   gradient: LinearGradient(
                                     begin: Alignment.topRight,
                                     end: Alignment.bottomLeft,
-                                    colors: [
-                                      AppColors.transparent,
-                                      AppColors.transparent,
-                                      AppColors.sphereRecess.withValues(alpha: 0.32),
-                                    ],
+                                    colors: [AppColors.transparent, AppColors.transparent, AppColors.sphereRecess.withValues(alpha: 0.32)],
                                   ),
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      // Cross-section of the rim, painted over photo and rim
-                      // alike: recess under the overhang, a lit lip where the
-                      // tube turns back towards the light, then the silhouette.
-                      DecoratedBox(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: RadialGradient(
-                            // Radius 0.5 puts the final stop exactly on the
-                            // sphere's edge, so every stop below is a fraction of
-                            // its radius.
-                            radius: 0.5,
-                            colors: [
-                              AppColors.transparent,
-                              AppColors.transparent,
-                              AppColors.sphereRecess.withValues(alpha: 0.30),
-                              AppColors.sphereRecess.withValues(alpha: 0.55),
-                              AppColors.transparent,
-                              AppColors.white.withValues(alpha: 0.60),
-                              AppColors.transparent,
-                              AppColors.sphereRecess.withValues(alpha: 0.06),
-                              AppColors.sphereRecess.withValues(alpha: 0.14),
-                            ],
-                            stops: [
-                              0,
-                              inner - 0.09,
-                              inner - 0.014,
-                              inner,
-                              inner + rim * 0.10,
-                              inner + rim * 0.18,
-                              inner + rim * 0.55,
-                              inner + rim * 0.80,
-                              1,
                             ],
                           ),
                         ),
@@ -208,10 +142,7 @@ class CategorySphereGrid extends StatelessWidget {
       ),
       itemBuilder: (context, index) {
         final category = categories[index];
-        return CategorySphere(
-          category: category,
-          onTap: () => onCategoryTap(category),
-        );
+        return CategorySphere(category: category, onTap: () => onCategoryTap(category));
       },
     );
   }
