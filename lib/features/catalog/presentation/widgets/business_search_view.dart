@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/router/category_navigation.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../../shared/widgets/app_card.dart';
@@ -86,8 +87,7 @@ class _BusinessSearchViewState extends ConsumerState<BusinessSearchView> {
           child: _query.isEmpty
               ? _CategoryShortcuts(
                   categories: categories,
-                  onCategoryTap: (category) => Navigator.of(context)
-                      .pushNamed(AppRoutes.category, arguments: category),
+                  onCategoryTap: (category) => openCategory(context, category),
                   onRetry: () => ref.invalidate(categoriesProvider),
                 )
               : AsyncValueView<List<Business>>(

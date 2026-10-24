@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:for_you/shared/widgets/promo_banners.dart';
 
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -22,9 +23,7 @@ class SignUpRoleScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Center(
-                child: ClipRRect(borderRadius: BorderRadius.circular(AppRadius.lg), child: Image.asset('assets/logo.png', height: 78)),
-              ),
+              BrandBanner(onTap: (){}),
               const SizedBox(height: AppSpacing.lg),
               Text('How will you use 702FORU?', textAlign: TextAlign.center, style: Theme.of(context).textTheme.headlineLarge),
               const SizedBox(height: AppSpacing.sm),

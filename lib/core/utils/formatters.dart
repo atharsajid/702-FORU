@@ -45,9 +45,16 @@ class AppFormatters {
     return '${m.toStringAsFixed(m >= 10 ? 0 : 1)}M';
   }
 
-  /// `4.8` – never shows a trailing `.0`.
-  static String rating(double value) =>
-      value == value.roundToDouble() ? value.toStringAsFixed(0) : value.toStringAsFixed(1);
+  /// `4.8` – never shows a trailing `.0`, and rounds halves up
+  /// (`4.85` → `4.9`).
+  static String rating(double value) {
+    // The epsilon makes a value such as 4.85 (stored as 4.849999…) round the
+    // way people expect instead of down to 4.8.
+    final rounded = (value * 10 + 1e-9).round() / 10;
+    return rounded == rounded.roundToDouble()
+        ? rounded.toStringAsFixed(0)
+        : rounded.toStringAsFixed(1);
+  }
 
   /// `$12.50` style price.
   static String price(double value) => '\$${value.toStringAsFixed(2)}';

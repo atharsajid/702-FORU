@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:for_you/shared/widgets/promo_banners.dart';
 
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -37,30 +38,7 @@ class AboutScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // ── Hero ─────────────────────────────────────────────────────
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(AppSpacing.xl),
-              decoration: BoxDecoration(
-                gradient: AppColors.navyGradient,
-                borderRadius: BorderRadius.circular(AppRadius.xl),
-              ),
-              child: Column(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadiusGeometry.circular(16),
-                    child: Image.asset('assets/logo.png', height: 108)),
-                  const SizedBox(height: AppSpacing.md),
-                  Text(
-                    'Discover. Connect. Experience.',
-                    style: TextStyle(
-                      color: AppColors.white.withValues(alpha: 0.85),
-                      fontSize: 14,
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            BrandBanner(onTap: (){}),
 
             const SizedBox(height: AppSpacing.xxl),
 

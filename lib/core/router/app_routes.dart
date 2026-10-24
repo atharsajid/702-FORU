@@ -21,6 +21,9 @@ class AppRoutes {
   static const String allCategories = '/categories';
   static const String category = '/category';
   static const String business = '/business';
+  static const String spotlightBusinesses = '/spotlight-businesses';
+  static const String freeThings = '/free-things';
+  static const String attraction = '/attraction';
   static const String writeReview = '/write-review';
   static const String spotlightInfo = '/spotlight';
 

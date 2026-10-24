@@ -6,16 +6,26 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:for_you/core/error/error_handler.dart';
 import 'package:for_you/core/error/exceptions.dart';
 import 'package:for_you/core/error/failures.dart';
 import 'package:for_you/core/utils/formatters.dart';
+import 'package:for_you/core/storage/local_seed.dart';
 import 'package:for_you/core/utils/image_url.dart';
+import 'package:for_you/core/utils/map_launcher.dart';
 import 'package:for_you/core/utils/validators.dart';
+import 'package:for_you/features/attractions/domain/entities/attraction.dart';
+import 'package:for_you/features/attractions/presentation/providers/attraction_providers.dart';
+import 'package:for_you/features/attractions/presentation/screens/attraction_detail_screen.dart';
+import 'package:for_you/features/attractions/presentation/screens/free_things_screen.dart';
 import 'package:for_you/features/auth/domain/entities/app_user.dart';
+import 'package:for_you/features/offers/domain/entities/featured_spotlight.dart';
+import 'package:for_you/features/offers/domain/entities/offer.dart';
 import 'package:for_you/shared/widgets/app_button.dart';
+import 'package:for_you/shared/widgets/promo_banners.dart';
 import 'package:for_you/shared/widgets/app_network_image.dart';
 
 void main() {
@@ -282,6 +292,182 @@ void main() {
       );
 
       expect(find.byIcon(Icons.broken_image_outlined), findsOneWidget);
+    });
+  });
+
+  group('MapLauncher', () {
+    test('builds a Google Maps link for the exact coordinates', () {
+      final uri = MapLauncher.uriFor(latitude: 36.1126, longitude: -115.1767);
+
+      expect(uri.host, 'www.google.com');
+      expect(uri.path, '/maps/search/');
+      expect(uri.queryParameters['api'], '1');
+      expect(uri.queryParameters['query'], '36.1126,-115.1767');
+    });
+  });
+
+  group('Attraction', () {
+    test('round-trips through a map', () {
+      final original = LocalSeed.attractions.first;
+      final restored = Attraction.fromMap(original.toMap());
+
+      expect(restored.id, original.id);
+      expect(restored.name, original.name);
+      expect(restored.latitude, original.latitude);
+      expect(restored.longitude, original.longitude);
+      expect(restored.goodToKnow, original.goodToKnow);
+      expect(restored.lastVerifiedAt, original.lastVerifiedAt);
+    });
+
+    test('every seeded attraction has a photo, copy and real location', () {
+      final ids = <String>{};
+
+      for (final attraction in LocalSeed.attractions) {
+        final label = attraction.id;
+        expect(ids.add(label), isTrue, reason: 'duplicate id $label');
+        expect(attraction.name.trim(), isNotEmpty, reason: label);
+        expect(attraction.imageUrl, startsWith('https://'), reason: label);
+        expect(attraction.description.length, greaterThan(80), reason: label);
+        expect(attraction.address, isNotEmpty, reason: label);
+        expect(attraction.hoursLabel, isNotEmpty, reason: label);
+        expect(
+          attraction.latitude,
+          inInclusiveRange(35.0, 37.0),
+          reason: label,
+        );
+        expect(
+          attraction.longitude,
+          inInclusiveRange(-116.5, -114.0),
+          reason: label,
+        );
+        expect(attraction.isActive, isTrue, reason: label);
+        expect(
+          attraction.lastVerifiedAt.isAfter(DateTime(2025, 12, 31)),
+          isTrue,
+          reason: label,
+        );
+      }
+
+      expect(ids.length, greaterThanOrEqualTo(6));
+    });
+
+    test('retired free listings are no longer part of the catalogue', () {
+      final ids = LocalSeed.attractions.map((a) => a.id).toSet();
+
+      for (final retired in LocalSeed.retiredBusinessIds) {
+        expect(ids, isNot(contains(retired)));
+      }
+    });
+  });
+
+  group('Free Things screens', () {
+    testWidgets('lists every attraction as its own card', (tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            attractionsProvider.overrideWith(
+              (ref) async => LocalSeed.attractions,
+            ),
+          ],
+          child: const MaterialApp(home: FreeThingsScreen()),
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(
+        find.byType(AttractionCard),
+        findsNWidgets(LocalSeed.attractions.length),
+      );
+      expect(
+        find.text(LocalSeed.attractions.first.name),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('detail page shows copy, address and the map action', (
+      tester,
+    ) async {
+      final attraction = LocalSeed.attractions.first;
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            attractionByIdProvider(attraction.id)
+                .overrideWith((ref) async => attraction),
+          ],
+          child: MaterialApp(
+            home: AttractionDetailScreen(attractionId: attraction.id),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(find.text(attraction.tagline), findsOneWidget);
+      // Shown once in the address row and once inside the map preview.
+      expect(find.text(attraction.address), findsNWidgets(2));
+      expect(find.text('Open in Maps'), findsOneWidget);
+      expect(find.text('Plan your visit'), findsOneWidget);
+    });
+  });
+
+  group('Featured in Vegas banner', () {
+    testWidgets('fits a narrow phone without overflowing', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(320, 700));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Center(
+              child: FeaturedInVegasBanner(
+                title: 'Skyline Heli Tours',
+                subtitle: '15% off Strip tours this month',
+                imageUrl: 'https://example.com/heli.jpg',
+                categoryLabel: 'Unique Experiences',
+                rating: 4.9,
+                reviewCount: 512,
+                hasVideo: true,
+                onPressed: () {},
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(tester.takeException(), isNull);
+      expect(find.text('FEATURED IN VEGAS'), findsOneWidget);
+      expect(find.text('Skyline Heli Tours'), findsOneWidget);
+      expect(find.text('View details'), findsOneWidget);
+    });
+  });
+
+  group('Featured in Vegas', () {
+    const offer = Offer(
+      id: 'o-featured',
+      title: 'Skyline Heli Tours',
+      subtitle: 'Featured in Vegas',
+      imageUrl: 'https://example.com/heli.jpg',
+      ctaLabel: 'View details',
+      businessId: 'skyline-heli-tours',
+      isFeatured: true,
+    );
+
+    test('keeps the featured flag when persisted', () {
+      expect(Offer.fromMap(offer.toMap()).isFeatured, isTrue);
+      expect(const Offer(id: 'x', title: 'x', subtitle: '', imageUrl: '').isFeatured, isFalse);
+    });
+
+    test('falls back to the offer when the business cannot be loaded', () {
+      const spotlight = FeaturedSpotlight(offer: offer);
+
+      expect(spotlight.title, 'Skyline Heli Tours');
+      expect(spotlight.imageUrl, offer.imageUrl);
+      expect(spotlight.businessId, 'skyline-heli-tours');
+      expect(spotlight.rating, isNull);
+      expect(spotlight.hasVideo, isFalse);
     });
   });
 }

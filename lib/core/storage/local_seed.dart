@@ -1,3 +1,4 @@
+import '../../features/attractions/domain/entities/attraction.dart';
 import '../../features/auth/domain/entities/app_user.dart';
 import '../../features/catalog/domain/entities/business.dart';
 import '../../features/catalog/domain/entities/category.dart';
@@ -13,7 +14,16 @@ class LocalSeed {
   const LocalSeed._();
 
   /// Bump to force re-seeding on next launch.
-  static const int version = 1;
+  static const int version = 2;
+
+  /// Seed rows that were removed from the catalogue. Deleting them on the next
+  /// launch replaces the old list without touching anything the user created.
+  static const List<String> retiredBusinessIds = [
+    'strip-fountain-show',
+    'springs-preserve',
+  ];
+
+  static const List<String> retiredOfferIds = ['o-food-fest'];
 
   /// Credentials for the demo accounts shown on the login screen.
   static const String demoUserEmail = 'demo@702foru.com';
@@ -32,10 +42,33 @@ class LocalSeed {
   static Future<void> _seed() async {
     await _seedCategories();
     await _seedBusinesses();
+    await _seedAttractions();
     await _seedCoupons();
     await _seedOffers();
     await _seedNotifications();
     await _seedAccounts();
+    await _pruneRetired();
+  }
+
+  /// Removes listings and offers that are no longer in the catalogue, plus any
+  /// attraction row that has dropped out of [attractions]. User-created data is
+  /// never touched.
+  static Future<void> _pruneRetired() async {
+    final businesses = HiveService.box(HiveBoxes.businesses);
+    for (final id in retiredBusinessIds) {
+      await businesses.delete(id);
+    }
+
+    final offers = HiveService.box(HiveBoxes.offers);
+    for (final id in retiredOfferIds) {
+      await offers.delete(id);
+    }
+
+    final attractionBox = HiveService.box(HiveBoxes.attractions);
+    final activeIds = attractions.map((a) => a.id).toSet();
+    for (final key in attractionBox.keys.toList()) {
+      if (!activeIds.contains(key)) await attractionBox.delete(key);
+    }
   }
 
   // ── Categories ─────────────────────────────────────────────────────────
@@ -123,8 +156,173 @@ class LocalSeed {
       id: 'free-things-to-do',
       name: 'Free Things To Do',
       imageUrl: 'https://images.pexels.com/photos/1194231/pexels-photo-1194231.jpeg',
-      description: 'Curated free events and spots across the valley.',
+      description: 'Free gardens, landmarks and monthly events across the valley.',
       sortOrder: 11,
+    ),
+  ];
+
+  // ── Free things to do ─────────────────────────────────────────────────
+  /// Curated, currently-open free spots. Each one has its own detail page.
+  /// Retired or closed places are deleted on the next seed (see [_pruneRetired]).
+  static final List<Attraction> attractions = [
+    Attraction(
+      id: 'bellagio-fountains-conservatory',
+      name: 'Bellagio Fountains & Conservatory',
+      tagline: 'Dancing water and a free seasonal garden on the Strip.',
+      description:
+          'The Fountains of Bellagio perform free shows every 15–30 minutes, with '
+          'the choreography changing through the day. Inside the hotel, the '
+          'Conservatory & Botanical Gardens is free to walk through and is '
+          'redecorated for every season.',
+      imageUrl: 'https://images.pexels.com/photos/1194231/pexels-photo-1194231.jpeg',
+      gallery: [
+        'https://images.pexels.com/photos/1194231/pexels-photo-1194231.jpeg',
+        'https://images.pexels.com/photos/1659438/pexels-photo-1659438.jpeg',
+      ],
+      address: '3600 S Las Vegas Blvd, Las Vegas, NV 89109',
+      latitude: 36.1126,
+      longitude: -115.1767,
+      hoursLabel: 'Fountains every 15–30 min · Conservatory open 24 hours',
+      website: 'https://www.bellagio.com/en/entertainment/fountains-of-bellagio.html',
+      goodToKnow: ['Free to watch', 'Best after dark', 'Resort parking is paid'],
+      sortOrder: 0,
+      lastVerifiedAt: DateTime(2026, 10, 1),
+    ),
+    Attraction(
+      id: 'fremont-street-experience',
+      name: 'Fremont Street Experience',
+      tagline: 'Downtown’s free light show under a giant canopy.',
+      description:
+          'Viva Vision is the biggest video screen in the world, and its hourly '
+          'light shows are free. Three stages host free live music most nights, '
+          'with bars, casinos and street performers all along the pedestrian mall.',
+      imageUrl: 'https://images.pexels.com/photos/19045720/pexels-photo-19045720.jpeg',
+      gallery: [
+        'https://images.pexels.com/photos/19045720/pexels-photo-19045720.jpeg',
+        'https://images.pexels.com/photos/164821/pexels-photo-164821.jpeg',
+      ],
+      address: '425 Fremont St, Las Vegas, NV 89101',
+      latitude: 36.1707,
+      longitude: -115.1447,
+      hoursLabel: 'Light shows hourly from dusk to midnight',
+      website: 'https://vegasexperience.com',
+      goodToKnow: ['Free entry', 'Covered canopy', 'Busiest on weekends'],
+      sortOrder: 1,
+      lastVerifiedAt: DateTime(2026, 10, 1),
+    ),
+    Attraction(
+      id: 'welcome-sign',
+      name: 'Welcome to Fabulous Las Vegas Sign',
+      tagline: 'The classic photo stop at the south end of the Strip.',
+      description:
+          'Betty Willis designed the neon sign in 1959 and it is still the most '
+          'photographed spot in the city. There is a free dedicated car park '
+          'behind it, and the queue moves quickly — early morning is quietest.',
+      imageUrl: 'https://images.pexels.com/photos/165799/pexels-photo-165799.jpeg',
+      gallery: ['https://images.pexels.com/photos/165799/pexels-photo-165799.jpeg'],
+      address: '5100 S Las Vegas Blvd, Las Vegas, NV 89119',
+      latitude: 36.0820,
+      longitude: -115.1728,
+      hoursLabel: 'Open 24 hours',
+      goodToKnow: ['Free parking', 'Bring water in summer', 'Go early for shorter queues'],
+      sortOrder: 2,
+      lastVerifiedAt: DateTime(2026, 10, 1),
+    ),
+    Attraction(
+      id: 'seven-magic-mountains',
+      name: 'Seven Magic Mountains',
+      tagline: 'Seven neon totems standing in the open desert.',
+      description:
+          'Ugo Rondinone’s public artwork stacks 33 locally sourced boulders into '
+          'seven brightly painted columns. It is about 25 miles south of the '
+          'Strip, free to visit and best photographed at sunrise or sunset.',
+      imageUrl: 'https://images.pexels.com/photos/8314277/pexels-photo-8314277.jpeg',
+      gallery: ['https://images.pexels.com/photos/8314277/pexels-photo-8314277.jpeg'],
+      address: 'S Las Vegas Blvd, Jean, NV 89019',
+      latitude: 35.8397,
+      longitude: -115.2711,
+      hoursLabel: 'Open daily, sunrise to sunset',
+      website: 'https://sevenmagicmountains.com',
+      goodToKnow: ['Free entry', 'No shade or water', '20–30 min drive from the Strip'],
+      sortOrder: 3,
+      lastVerifiedAt: DateTime(2026, 10, 1),
+    ),
+    Attraction(
+      id: 'ethel-m-cactus-garden',
+      name: 'Ethel M Botanical Cactus Garden',
+      tagline: 'A free desert garden in Henderson.',
+      description:
+          'More than 300 species of cactus and desert plants fill this free '
+          'self-guided garden beside the Ethel M chocolate factory. In winter the '
+          'whole garden is covered in holiday lights.',
+      imageUrl: 'https://images.pexels.com/photos/414171/pexels-photo-414171.jpeg',
+      gallery: ['https://images.pexels.com/photos/414171/pexels-photo-414171.jpeg'],
+      address: '2 Cactus Garden Dr, Henderson, NV 89014',
+      latitude: 36.0453,
+      longitude: -115.0553,
+      hoursLabel: 'Daily 8:30am–8pm (seasonal)',
+      website: 'https://www.ethelm.com',
+      goodToKnow: ['Free entry', 'Shaded paths', 'Holiday lights in winter'],
+      sortOrder: 4,
+      lastVerifiedAt: DateTime(2026, 10, 1),
+    ),
+    Attraction(
+      id: 'clark-county-wetlands-park',
+      name: 'Clark County Wetlands Park',
+      tagline: 'Trails, ponds and wildlife minutes from the city.',
+      description:
+          'Nearly 3,000 acres of ponds, trails and bird habitat along the Las '
+          'Vegas Wash. Entry to the park, the trails and the nature centre is '
+          'free — bring water and go early in the warmer months.',
+      imageUrl: 'https://images.pexels.com/photos/17315260/pexels-photo-17315260.jpeg',
+      gallery: ['https://images.pexels.com/photos/17315260/pexels-photo-17315260.jpeg'],
+      address: '7050 Wetlands Park Ln, Las Vegas, NV 89122',
+      latitude: 36.1017,
+      longitude: -114.9995,
+      hoursLabel: 'Trails daily 6am–dusk · Nature Center 9am–3pm',
+      website: 'https://www.clarkcountynv.gov/government/departments/parks_recreation/wetlands_park.php',
+      goodToKnow: ['Free parking', 'Paved and dirt trails', 'Bring binoculars'],
+      sortOrder: 5,
+      lastVerifiedAt: DateTime(2026, 10, 1),
+    ),
+    Attraction(
+      id: 'downtown-container-park',
+      name: 'Downtown Container Park',
+      tagline: 'Shops, a playground and a giant mantis — free entry.',
+      description:
+          'A shopping and dining courtyard built from shipping containers, with '
+          'a free play area, a 30-foot praying mantis that shoots flames at '
+          'night, and regular free live music on the lawn.',
+      imageUrl: 'https://images.pexels.com/photos/1190298/pexels-photo-1190298.jpeg',
+      gallery: ['https://images.pexels.com/photos/1190298/pexels-photo-1190298.jpeg'],
+      address: '707 Fremont St, Las Vegas, NV 89101',
+      latitude: 36.1692,
+      longitude: -115.1398,
+      hoursLabel: 'Mon–Thu 11am–9pm · Fri–Sun 11am–10pm',
+      website: 'https://downtowncontainerpark.com',
+      goodToKnow: ['Free entry', 'Kids’ play area', '21+ after 9pm'],
+      sortOrder: 6,
+      lastVerifiedAt: DateTime(2026, 10, 1),
+    ),
+    Attraction(
+      id: 'first-friday-arts-district',
+      name: 'First Friday Arts District',
+      tagline: 'A free monthly street festival for local art and food.',
+      description:
+          'On the first Friday of every month the 18b Arts District fills with '
+          'open galleries, food trucks, makers and live music. Entry is free; '
+          'many galleries stay open late and parking is limited, so rideshare is '
+          'easier.',
+      imageUrl: 'https://images.pexels.com/photos/3004909/pexels-photo-3004909.jpeg',
+      gallery: ['https://images.pexels.com/photos/3004909/pexels-photo-3004909.jpeg'],
+      address: '1025 S 1st St, Las Vegas, NV 89101',
+      latitude: 36.1586,
+      longitude: -115.1484,
+      hoursLabel: 'First Friday of each month, 5pm–11pm',
+      website: 'https://firstfridaylv.org',
+      goodToKnow: ['Free entry', 'Monthly only', 'Food and drink for purchase'],
+      sortOrder: 7,
+      lastVerifiedAt: DateTime(2026, 10, 1),
     ),
   ];
 
@@ -253,6 +451,7 @@ class LocalSeed {
         phone: '+1 702 555 0101',
         website: 'https://neonlounge.com',
         services: ['Cocktails', 'Live DJ', 'Rooftop'],
+        sponsored: true,
       ),
       b(
         id: 'golden-stage',
@@ -282,6 +481,7 @@ class LocalSeed {
         phone: '+1 702 333 9090',
         website: 'https://pureyoga.com',
         services: ['Yoga', 'Meditation', 'Wellness Coaching'],
+        sponsored: true,
       ),
       b(
         id: 'healthy-life-clinic',
@@ -340,6 +540,7 @@ class LocalSeed {
         phone: '+1 702 444 1212',
         website: 'https://redrocktours.com',
         services: ['Guided Hikes', 'Sunset Tours', 'Equipment Rental'],
+        sponsored: true,
       ),
       b(
         id: 'lake-mead-kayaks',
@@ -501,35 +702,6 @@ class LocalSeed {
         website: 'https://handyhomehelp.com',
         services: ['Errands', 'Home Help', 'Personal Assistant'],
       ),
-      // Free things to do
-      b(
-        id: 'strip-fountain-show',
-        name: 'Free Strip Fountain Show',
-        category: 'free-things-to-do',
-        cover: 'https://images.pexels.com/photos/1194231/pexels-photo-1194231.jpeg',
-        logo: 'https://images.pexels.com/photos/1194231/pexels-photo-1194231.jpeg',
-        rating: 4.9,
-        reviews: 1024,
-        address: 'Las Vegas Strip, NV',
-        description: 'Nightly fountain show – completely free, every 30 minutes.',
-        phone: '+1 702 000 0000',
-        website: 'https://702foru.com/free/fountain-show',
-        services: ['Free Entry', 'Nightly Shows'],
-      ),
-      b(
-        id: 'springs-preserve',
-        name: 'Springs Preserve Trails',
-        category: 'free-things-to-do',
-        cover: 'https://images.pexels.com/photos/1659438/pexels-photo-1659438.jpeg',
-        logo: 'https://images.pexels.com/photos/1659438/pexels-photo-1659438.jpeg',
-        rating: 4.6,
-        reviews: 268,
-        address: '333 S Valley View Blvd, Las Vegas, NV',
-        description: 'Free garden and trail access on select community days.',
-        phone: '+1 702 822 7700',
-        website: 'https://springspreserve.org',
-        services: ['Free Trails', 'Gardens', 'Family Friendly'],
-      ),
     ];
   }
 
@@ -630,12 +802,13 @@ class LocalSeed {
         expiresAt: expiry,
       ),
       Offer(
-        id: 'o-food-fest',
-        title: 'Vegas Food Fest',
-        subtitle: 'Up to 25% off at participating restaurants',
-        imageUrl: 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg',
-        ctaLabel: 'Explore Now',
-        categoryId: 'food-drink',
+        id: 'o-featured-vegas',
+        title: 'Skyline Heli Tours',
+        subtitle: '15% off Strip tours this month',
+        imageUrl: 'https://images.pexels.com/photos/1190298/pexels-photo-1190298.jpeg',
+        ctaLabel: 'View details',
+        businessId: 'skyline-heli-tours',
+        isFeatured: true,
         expiresAt: expiry,
       ),
       Offer(
@@ -744,6 +917,13 @@ class LocalSeed {
     final box = HiveService.box(HiveBoxes.businesses);
     for (final business in _businesses()) {
       await box.put(business.id, business.toMap());
+    }
+  }
+
+  static Future<void> _seedAttractions() async {
+    final box = HiveService.box(HiveBoxes.attractions);
+    for (final attraction in attractions) {
+      await box.put(attraction.id, attraction.toMap());
     }
   }
 

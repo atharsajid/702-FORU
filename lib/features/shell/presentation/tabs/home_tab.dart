@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/router/category_navigation.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/utils/responsive.dart';
@@ -14,6 +15,7 @@ import '../../../../shared/widgets/notification_bell.dart';
 import '../../../../shared/widgets/promo_banners.dart';
 import '../../../../shared/widgets/rss_marquee.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
+import '../../../catalog/domain/entities/business.dart';
 import '../../../catalog/domain/entities/category.dart';
 import '../../../catalog/presentation/providers/catalog_providers.dart';
 import '../../../offers/presentation/providers/offers_providers.dart';
@@ -39,12 +41,17 @@ class HomeTab extends ConsumerWidget {
           ref.invalidate(categoriesProvider);
           ref.invalidate(offersProvider);
           ref.invalidate(sponsoredBusinessesProvider);
-          await Future.wait([ref.read(categoriesProvider.future), ref.read(offersProvider.future)]);
+          await Future.wait([
+            ref.read(categoriesProvider.future),
+            ref.read(offersProvider.future),
+          ]);
         },
         child: SafeArea(
           bottom: false,
           child: CustomScrollView(
-            physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+            physics: const BouncingScrollPhysics(
+              parent: AlwaysScrollableScrollPhysics(),
+            ),
             slivers: [
               const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.sm)),
               const SliverToBoxAdapter(child: _HomeHeader()),
@@ -52,8 +59,16 @@ class HomeTab extends ConsumerWidget {
               const SliverToBoxAdapter(child: _HomeSearchBar()),
               const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),
 
-              // Brand banner → About 702FORU
-              SliverToBoxAdapter(child: BrandBanner(onTap: () => Navigator.of(context).pushNamed(AppRoutes.about))),
+              // 702FORU logo (kept, now fitted) → About 702FORU
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.page),
+                  child: BrandBanner(
+                    onTap: () =>
+                        Navigator.of(context).pushNamed(AppRoutes.about),
+                  ),
+                ),
+              ),
 
               const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),
 
@@ -62,22 +77,40 @@ class HomeTab extends ConsumerWidget {
 
               const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),
 
-              // Exclusive offer banner → Explore Now
+              // Featured in Vegas → the featured business's detail page
               SliverToBoxAdapter(
                 child: Consumer(
                   builder: (context, ref, child) {
-                    final heroOffer = ref.watch(heroOfferProvider);
+                    final featured = ref.watch(featuredSpotlightProvider);
 
-                    return heroOffer.maybeWhen(
-                      data: (offer) => offer == null
-                          ? const SizedBox.shrink()
-                          : OfferBanner(
-                              title: offer.title,
-                              subtitle: offer.subtitle,
-                              imageUrl: offer.imageUrl,
-                              ctaLabel: offer.ctaLabel,
-                              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.offers),
-                            ),
+                    return featured.maybeWhen(
+                      data: (spotlight) {
+                        if (spotlight == null) return const SizedBox.shrink();
+                        final businessId = spotlight.businessId;
+
+                        return FeaturedInVegasBanner(
+                          title: spotlight.title,
+                          subtitle: spotlight.subtitle,
+                          imageUrl: spotlight.imageUrl,
+                          categoryLabel: spotlight.categoryLabel,
+                          rating: spotlight.rating,
+                          reviewCount: spotlight.reviewCount,
+                          hasVideo: spotlight.hasVideo,
+                          ctaLabel: spotlight.ctaLabel,
+                          onPressed: () {
+                            if (businessId != null &&
+                                businessId.isNotEmpty) {
+                              Navigator.of(context).pushNamed(
+                                AppRoutes.business,
+                                arguments: businessId,
+                              );
+                            } else {
+                              Navigator.of(context)
+                                  .pushNamed(AppRoutes.offers);
+                            }
+                          },
+                        );
+                      },
                       orElse: () => const _BannerSkeleton(),
                     );
                   },
@@ -89,7 +122,8 @@ class HomeTab extends ConsumerWidget {
                   title: 'Explore Categories',
                   subtitle: 'Tap a sphere to discover local businesses',
                   actionLabel: 'See all',
-                  onAction: () => Navigator.of(context).pushNamed(AppRoutes.allCategories),
+                  onAction: () => Navigator.of(context)
+                      .pushNamed(AppRoutes.allCategories),
                 ),
               ),
 
@@ -103,7 +137,8 @@ class HomeTab extends ConsumerWidget {
                       onRetry: () => ref.invalidate(categoriesProvider),
                       builder: (context, list) => CategorySphereGrid(
                         categories: list,
-                        onCategoryTap: (category) => Navigator.of(context).pushNamed(AppRoutes.category, arguments: category),
+                        onCategoryTap: (category) =>
+                            openCategory(context, category),
                       ),
                     );
                   },
@@ -114,8 +149,9 @@ class HomeTab extends ConsumerWidget {
                 child: AppSectionHeader(
                   title: 'Spotlight Businesses',
                   subtitle: 'Featured partners this week',
-                  actionLabel: 'Browse',
-                  onAction: () => Navigator.of(context).pushNamed(AppRoutes.search),
+                  actionLabel: 'See All',
+                  onAction: () => Navigator.of(context)
+                      .pushNamed(AppRoutes.spotlightBusinesses),
                 ),
               ),
 
@@ -131,31 +167,12 @@ class HomeTab extends ConsumerWidget {
                         if (list.isEmpty) {
                           return const AppEmptyState(
                             title: 'No spotlight businesses yet',
-                            message: 'Check back soon — we add new partners weekly.',
+                            message:
+                                'Check back soon — we add new partners weekly.',
                             icon: Icons.storefront_outlined,
                           );
                         }
-                        final cardWidth = context.responsive(mobile: 190.0, tablet: 220.0);
-                        return SizedBox(
-                          height: 214,
-                          child: ListView.separated(
-                            scrollDirection: Axis.horizontal,
-                            physics: const BouncingScrollPhysics(),
-                            padding: EdgeInsets.symmetric(horizontal: context.pagePadding),
-                            itemCount: list.length,
-                            separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.md),
-                            itemBuilder: (context, index) {
-                              final business = list[index];
-                              return SizedBox(
-                                width: cardWidth,
-                                child: BusinessCard(
-                                  business: business,
-                                  onTap: () => Navigator.of(context).pushNamed(AppRoutes.business, arguments: business.id),
-                                ),
-                              );
-                            },
-                          ),
-                        );
+                        return _SpotlightCarousel(businesses: list);
                       },
                     );
                   },
@@ -167,6 +184,90 @@ class HomeTab extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Swipeable, page-snapped row of spotlight partners with page dots.
+class _SpotlightCarousel extends StatefulWidget {
+  const _SpotlightCarousel({required this.businesses});
+
+  final List<Business> businesses;
+
+  @override
+  State<_SpotlightCarousel> createState() => _SpotlightCarouselState();
+}
+
+class _SpotlightCarouselState extends State<_SpotlightCarousel> {
+  static const double _cardHeight = 318;
+
+  final PageController _controller = PageController(viewportFraction: 0.86);
+  int _page = 0;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _open(Business business) {
+    Navigator.of(context).pushNamed(
+      AppRoutes.business,
+      arguments: business.id,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        SizedBox(
+          height: _cardHeight,
+          child: Padding(
+            padding: EdgeInsets.only(left: context.pagePadding),
+            child: PageView.builder(
+              controller: _controller,
+              padEnds: false,
+              physics: const BouncingScrollPhysics(),
+              itemCount: widget.businesses.length,
+              onPageChanged: (index) => setState(() => _page = index),
+              itemBuilder: (context, index) {
+                final business = widget.businesses[index];
+                return Padding(
+                  padding: const EdgeInsets.only(right: AppSpacing.md),
+                  child: SpotlightBusinessCard(
+                    business: business,
+                    onTap: () => _open(business),
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+        if (widget.businesses.length > 1)
+          Padding(
+            padding: const EdgeInsets.only(top: AppSpacing.sm),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                for (var index = 0; index < widget.businesses.length; index++)
+                  AnimatedContainer(
+                    duration: AppDurations.fast,
+                    curve: Curves.easeOut,
+                    margin: const EdgeInsets.symmetric(horizontal: 2),
+                    height: 6,
+                    width: index == _page ? 18 : 6,
+                    decoration: BoxDecoration(
+                      color: index == _page
+                          ? AppColors.purple
+                          : AppColors.greyLight,
+                      borderRadius: BorderRadius.circular(AppRadius.pill),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+      ],
     );
   }
 }
@@ -189,13 +290,20 @@ class _HomeHeader extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  user == null ? 'Welcome to 702FORU' : 'Hi, ${user.fullName.split(' ').first}',
+                  user == null
+                      ? 'Welcome to 702FORU'
+                      : 'Hi, ${user.fullName.split(' ').first}',
                   style: text.bodySmall,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 2),
-                Text('Your Vegas, ready.', style: text.headlineMedium, maxLines: 1, overflow: TextOverflow.ellipsis),
+                Text(
+                  'Your Vegas, ready.',
+                  style: text.headlineMedium,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ],
             ),
           ),
@@ -209,11 +317,19 @@ class _HomeHeader extends ConsumerWidget {
             )
           else
             GestureDetector(
-              onTap: () => Navigator.of(context).pushNamed(AppRoutes.profile),
-              child: AppAvatar(imageUrl: user.avatarUrl, initials: user.initials, size: 38),
+              onTap: () =>
+                  Navigator.of(context).pushNamed(AppRoutes.profile),
+              child: AppAvatar(
+                imageUrl: user.avatarUrl,
+                initials: user.initials,
+                size: 38,
+              ),
             ),
           const SizedBox(width: AppSpacing.xs),
-          NotificationBell(onTap: () => Navigator.of(context).pushNamed(AppRoutes.notifications)),
+          NotificationBell(
+            onTap: () =>
+                Navigator.of(context).pushNamed(AppRoutes.notifications),
+          ),
         ],
       ),
     );
@@ -233,13 +349,19 @@ class _HomeSearchBar extends StatelessWidget {
         child: AbsorbPointer(
           child: Container(
             height: 46,
-            decoration: BoxDecoration(color: AppColors.surfaceMuted, borderRadius: BorderRadius.circular(AppRadius.pill)),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceMuted,
+              borderRadius: BorderRadius.circular(AppRadius.pill),
+            ),
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
             child: Row(
               children: [
                 const Icon(Icons.search, size: 20, color: AppColors.grey),
                 const SizedBox(width: AppSpacing.sm),
-                Text('Search businesses, services, events…', style: Theme.of(context).textTheme.bodyMedium),
+                Text(
+                  'Search businesses, services, events…',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
               ],
             ),
           ),
@@ -249,7 +371,7 @@ class _HomeSearchBar extends StatelessWidget {
   }
 }
 
-/// Placeholder shown while the offer banner loads.
+/// Placeholder shown while the featured banner loads.
 class _BannerSkeleton extends StatelessWidget {
   const _BannerSkeleton();
 
@@ -258,8 +380,11 @@ class _BannerSkeleton extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: context.pagePadding),
       child: Container(
-        height: 128,
-        decoration: BoxDecoration(color: AppColors.surfaceMuted, borderRadius: BorderRadius.circular(AppRadius.lg)),
+        height: 244,
+        decoration: BoxDecoration(
+          color: AppColors.surfaceMuted,
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+        ),
       ),
     );
   }

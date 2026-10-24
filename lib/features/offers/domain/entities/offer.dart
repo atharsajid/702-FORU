@@ -13,6 +13,7 @@ class Offer {
     this.categoryId,
     this.expiresAt,
     this.isActive = true,
+    this.isFeatured = false,
   });
 
   final String id;
@@ -28,6 +29,9 @@ class Offer {
   final DateTime? expiresAt;
   final bool isActive;
 
+  /// Marks the one offer promoted to the Home "Featured in Vegas" banner.
+  final bool isFeatured;
+
   bool get isExpired =>
       expiresAt != null && expiresAt!.isBefore(DateTime.now());
 
@@ -41,6 +45,7 @@ class Offer {
         'categoryId': categoryId,
         'expiresAt': expiresAt?.millisecondsSinceEpoch,
         'isActive': isActive,
+        'isFeatured': isFeatured,
       };
 
   factory Offer.fromMap(Map<String, dynamic> map) => Offer(
@@ -53,6 +58,7 @@ class Offer {
         categoryId: Json.nullableString(map['categoryId']),
         expiresAt: Json.nullableDateTime(map['expiresAt']),
         isActive: Json.toBool(map['isActive'], fallback: true),
+        isFeatured: Json.toBool(map['isFeatured']),
       );
 
   @override

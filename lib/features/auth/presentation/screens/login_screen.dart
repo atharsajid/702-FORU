@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:for_you/core/constant/app_strings.dart';
+import 'package:for_you/shared/widgets/promo_banners.dart';
 
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/storage/local_seed.dart';
@@ -79,9 +80,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Center(
-                      child: ClipRRect(borderRadius: BorderRadius.circular(AppRadius.lg), child: Image.asset('assets/logo.png', height: 84)),
-                    ),
+                    BrandBanner(onTap: (){}),
                     const SizedBox(height: AppSpacing.lg),
                     Text('Welcome back', textAlign: TextAlign.center, style: Theme.of(context).textTheme.displayMedium),
                     const SizedBox(height: AppSpacing.xs),

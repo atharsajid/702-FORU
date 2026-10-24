@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../features/about/presentation/screens/about_screen.dart';
+import '../../features/attractions/presentation/screens/attraction_detail_screen.dart';
+import '../../features/attractions/presentation/screens/free_things_screen.dart';
 import '../../features/auth/presentation/screens/forgot_password_screen.dart';
 import '../../features/auth/presentation/screens/how_it_works_screen.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
@@ -12,6 +14,7 @@ import '../../features/catalog/presentation/screens/all_categories_screen.dart';
 import '../../features/catalog/presentation/screens/business_screen.dart';
 import '../../features/catalog/presentation/screens/category_screen.dart';
 import '../../features/catalog/presentation/screens/search_screen.dart';
+import '../../features/catalog/presentation/screens/spotlight_businesses_screen.dart';
 import '../../features/catalog/presentation/screens/write_review_screen.dart';
 import '../../features/notifications/presentation/screens/notifications_screen.dart';
 import '../../features/offers/presentation/screens/offers_screen.dart';
@@ -84,6 +87,20 @@ class AppRouter {
         final businessId = _arg<String>(settings);
         if (businessId == null) return _missingArgument(settings);
         return _page(BusinessScreen(businessId: businessId), settings);
+
+      case AppRoutes.spotlightBusinesses:
+        return _page(const SpotlightBusinessesScreen(), settings);
+
+      case AppRoutes.freeThings:
+        return _page(const FreeThingsScreen(), settings);
+
+      case AppRoutes.attraction:
+        final attractionId = _arg<String>(settings);
+        if (attractionId == null) return _missingArgument(settings);
+        return _page(
+          AttractionDetailScreen(attractionId: attractionId),
+          settings,
+        );
 
       case AppRoutes.writeReview:
         final businessId = _arg<String>(settings);

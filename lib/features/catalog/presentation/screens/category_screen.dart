@@ -40,7 +40,15 @@ class CategoryScreen extends ConsumerWidget {
 
             // 702FORU logo keeps the brand present on every category page.
             SliverToBoxAdapter(
-              child: BrandBanner(onTap:() {},)
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.page),
+                child: BrandBanner(
+                  onTap: () =>
+                      Navigator.of(context).pushNamed(AppRoutes.about),
+                  height: 112,
+                  compact: true,
+                ),
+              ),
             ),
 
             const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),

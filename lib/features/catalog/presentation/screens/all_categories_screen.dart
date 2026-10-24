@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:for_you/shared/widgets/promo_banners.dart';
 
-import '../../../../core/router/app_routes.dart';
+import '../../../../core/router/category_navigation.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/utils/responsive.dart';
@@ -28,10 +29,9 @@ class AllCategoriesScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: AppSpacing.md),
-            Center(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(AppRadius.lg),
-                child: Image.asset('assets/logo.png', height: 100)),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.page),
+              child: BrandBanner(onTap: (){},),
             ),
             const SizedBox(height: AppSpacing.lg),
             AsyncValueView<List<Category>>(
@@ -46,8 +46,7 @@ class AllCategoriesScreen extends ConsumerWidget {
                 }
                 return CategorySphereGrid(
                   categories: list,
-                  onCategoryTap: (category) => Navigator.of(context)
-                      .pushNamed(AppRoutes.category, arguments: category),
+                  onCategoryTap: (category) => openCategory(context, category),
                 );
               },
             ),

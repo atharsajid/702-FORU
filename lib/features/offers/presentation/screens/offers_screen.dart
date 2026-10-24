@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/router/category_navigation.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/utils/context_extensions.dart';
@@ -89,7 +90,7 @@ class OffersScreen extends ConsumerWidget {
       if (!context.mounted) return;
       if (match.isNotEmpty) {
         final Category category = match.first;
-        Navigator.of(context).pushNamed(AppRoutes.category, arguments: category);
+        openCategory(context, category);
         return;
       }
     }

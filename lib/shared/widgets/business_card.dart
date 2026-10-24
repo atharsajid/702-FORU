@@ -81,6 +81,129 @@ class BusinessCard extends StatelessWidget {
   }
 }
 
+/// Large swipeable card used in the Home "Spotlight Businesses" carousel.
+///
+/// Unlike [BusinessCard] it has room for the address and an explicit
+/// "View details" affordance, and the image flexes so the card keeps its
+/// proportions on tablets.
+class SpotlightBusinessCard extends StatelessWidget {
+  const SpotlightBusinessCard({
+    super.key,
+    required this.business,
+    required this.onTap,
+  });
+
+  final Business business;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      onTap: onTap,
+      padding: EdgeInsets.zero,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                AppNetworkImage(
+                  url: business.coverUrl ?? business.logoUrl,
+                  width: double.infinity,
+                  height: double.infinity,
+                  placeholderIcon: Icons.storefront_outlined,
+                ),
+                const Positioned(
+                  top: AppSpacing.md,
+                  left: AppSpacing.md,
+                  child: AppTag(
+                    label: 'SPOTLIGHT',
+                    color: AppColors.gold,
+                    textColor: AppColors.navy,
+                    compact: true,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.md,
+              AppSpacing.md,
+              AppSpacing.md,
+              AppSpacing.md,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  business.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    height: 1.2,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.location_on_outlined,
+                      size: 13,
+                      color: AppColors.textSecondary,
+                    ),
+                    const SizedBox(width: 2),
+                    Expanded(
+                      child: Text(
+                        business.address.isEmpty ? 'Las Vegas, NV' : business.address,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 11.5,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                Row(
+                  children: [
+                    AppRatingBadge(
+                      rating: business.rating,
+                      reviewCount: business.reviewCount,
+                      compact: true,
+                    ),
+                    const Spacer(),
+                    const Text(
+                      'View details',
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.purple,
+                      ),
+                    ),
+                    const SizedBox(width: 2),
+                    const Icon(
+                      Icons.arrow_forward_rounded,
+                      size: 14,
+                      color: AppColors.purple,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 /// Horizontal row used in search results and favourites lists.
 class BusinessListTile extends StatelessWidget {
   const BusinessListTile({

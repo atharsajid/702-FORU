@@ -23,8 +23,11 @@ class HiveBoxes {
   /// Coupons keyed by id.
   static const String coupons = 'coupons';
 
-  /// Exclusive offers shown on the Home banner / Offers screen.
+  /// Exclusive offers shown on the Offers screen.
   static const String offers = 'offers';
+
+  /// Free things to do (attractions with their own detail page).
+  static const String attractions = 'attractions';
 
   /// Notifications keyed by id.
   static const String notifications = 'notifications';
@@ -40,6 +43,7 @@ class HiveBoxes {
     reviews,
     coupons,
     offers,
+    attractions,
     notifications,
     favorites,
   ];
