@@ -1,3 +1,4 @@
+import '../../../../core/config/pricing.dart';
 import '../../../../core/error/error_handler.dart';
 import '../../../../core/error/failures.dart';
 import '../../../auth/domain/entities/app_user.dart';
@@ -37,6 +38,11 @@ class RegisterProviderAccount {
     required String categoryId,
     required String address,
     String description = '',
+    String legalName = '',
+    String hours = '',
+    String serviceArea = '',
+    String website = '',
+    List<String> advertisingAddOns = const [],
     bool marketingOptIn = false,
   }) async {
     // 1. Create the account.
@@ -72,6 +78,13 @@ class RegisterProviderAccount {
           : description.trim(),
       trackingCode: _trackingCode(businessName, now),
       ownerId: account.id,
+      website: website.trim(),
+      legalName: legalName.trim(),
+      hours: hours.trim(),
+      serviceArea: serviceArea.trim(),
+      listingPlan: BusinessListingPricing.planId,
+      advertisingAddOns: List<String>.unmodifiable(advertisingAddOns),
+      trialEndsAt: BusinessListingPricing.trialEndFrom(now),
       createdAt: now,
     );
 
@@ -93,7 +106,7 @@ class RegisterProviderAccount {
     );
   }
 
-  /// `702-4U-XXXX` style tracking code the client can bill against.
+  /// `702-4U-XXXX` style code used to attribute coupon redemptions.
   String _trackingCode(String businessName, DateTime now) {
     final letters = businessName
         .replaceAll(RegExp(r'[^A-Za-z]'), '')

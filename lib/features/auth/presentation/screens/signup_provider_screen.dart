@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/config/pricing.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
@@ -13,13 +14,10 @@ import '../../../../shared/widgets/app_feedback.dart';
 import '../../../../shared/widgets/app_text_field.dart';
 import '../../../catalog/domain/entities/category.dart';
 import '../../../catalog/presentation/providers/catalog_providers.dart';
-import '../../../provider/presentation/providers/provider_providers.dart';
-import '../providers/auth_providers.dart';
+import '../providers/business_signup_draft.dart';
+import '../widgets/signup_step_header.dart';
 
-/// How a provider chooses to be billed.
-enum BillingModel { commission, flatFee }
-
-/// Business registration: creates the account *and* the listing.
+/// Business signup step 2 — the business information from the enrollment form.
 class SignUpProviderScreen extends ConsumerStatefulWidget {
   const SignUpProviderScreen({super.key});
 
@@ -30,83 +28,91 @@ class SignUpProviderScreen extends ConsumerStatefulWidget {
 
 class _SignUpProviderScreenState extends ConsumerState<SignUpProviderScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _ownerName = TextEditingController();
-  final _email = TextEditingController();
-  final _phone = TextEditingController();
-  final _password = TextEditingController();
-  final _businessName = TextEditingController();
-  final _address = TextEditingController();
-  final _description = TextEditingController();
+
+  late final TextEditingController _legalName;
+  late final TextEditingController _businessName;
+  late final TextEditingController _contactName;
+  late final TextEditingController _contactTitle;
+  late final TextEditingController _email;
+  late final TextEditingController _phone;
+  late final TextEditingController _website;
+  late final TextEditingController _address;
+  late final TextEditingController _serviceArea;
+  late final TextEditingController _hours;
+  late final TextEditingController _description;
+  late final TextEditingController _password;
+  late final TextEditingController _confirm;
 
   String? _categoryId;
-  BillingModel _billing = BillingModel.commission;
-  bool _acceptedTerms = false;
-  bool _showTermsError = false;
-  bool _isBusy = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final draft = ref.read(businessSignupDraftProvider);
+    _legalName = TextEditingController(text: draft.legalName);
+    _businessName = TextEditingController(text: draft.businessName);
+    _contactName = TextEditingController(text: draft.contactName);
+    _contactTitle = TextEditingController(text: draft.contactTitle);
+    _email = TextEditingController(text: draft.email);
+    _phone = TextEditingController(text: draft.phone);
+    _website = TextEditingController(text: draft.website);
+    _address = TextEditingController(text: draft.address);
+    _serviceArea = TextEditingController(text: draft.serviceArea);
+    _hours = TextEditingController(text: draft.hours);
+    _description = TextEditingController(text: draft.description);
+    _password = TextEditingController(text: draft.password);
+    _confirm = TextEditingController(text: draft.password);
+    _categoryId = draft.categoryId;
+  }
 
   @override
   void dispose() {
-    _ownerName.dispose();
-    _email.dispose();
-    _phone.dispose();
-    _password.dispose();
-    _businessName.dispose();
-    _address.dispose();
-    _description.dispose();
+    for (final controller in [
+      _legalName,
+      _businessName,
+      _contactName,
+      _contactTitle,
+      _email,
+      _phone,
+      _website,
+      _address,
+      _serviceArea,
+      _hours,
+      _description,
+      _password,
+      _confirm,
+    ]) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
-  Future<void> _submit() async {
+  void _continue() {
     context.unfocus();
-    final formValid = _formKey.currentState!.validate();
-
+    final valid = _formKey.currentState!.validate();
     if (_categoryId == null) {
       context.showSnack('Please choose a category.', isError: true);
       return;
     }
-    setState(() => _showTermsError = !_acceptedTerms);
-    if (!formValid || !_acceptedTerms) {
-      if (!_acceptedTerms) {
-        context.showSnack(
-          'Please accept the provider agreement to continue.',
-          isError: true,
+    if (!valid) return;
+
+    final draft = ref.read(businessSignupDraftProvider).copyWith(
+          legalName: _legalName.text.trim(),
+          businessName: _businessName.text.trim(),
+          contactName: _contactName.text.trim(),
+          contactTitle: _contactTitle.text.trim(),
+          email: _email.text.trim(),
+          phone: _phone.text.trim(),
+          website: _website.text.trim(),
+          address: _address.text.trim(),
+          serviceArea: _serviceArea.text.trim(),
+          hours: _hours.text.trim(),
+          description: _description.text.trim(),
+          password: _password.text,
+          categoryId: _categoryId,
         );
-      }
-      return;
-    }
-
-    setState(() => _isBusy = true);
-
-    final result = await ref.read(registerProviderAccountProvider)(
-      fullName: _ownerName.text,
-      email: _email.text,
-      password: _password.text,
-      phone: _phone.text,
-      businessName: _businessName.text,
-      categoryId: _categoryId!,
-      address: _address.text,
-      description: _description.text,
-      marketingOptIn: true,
-    );
-
-    if (!mounted) return;
-    setState(() => _isBusy = false);
-
-    result.when(
-      success: (registration) {
-        // Keep the session in sync with the newly linked listing.
-        ref.read(authControllerProvider.notifier).setUser(registration.user);
-        ref.invalidate(myBusinessProvider);
-        ref.invalidate(myCouponsProvider);
-        context.showSnack('Your business is live on 702FORU!');
-        Navigator.of(context).pushNamedAndRemoveUntil(
-          AppRoutes.providerDashboard,
-          (route) => route.isFirst,
-        );
-      },
-      failure: (failure) =>
-          context.showSnack(failure.message, isError: true),
-    );
+    ref.read(businessSignupDraftProvider.notifier).saveBusinessInfo(draft);
+    Navigator.of(context).pushNamed(AppRoutes.signUpProviderAds);
   }
 
   @override
@@ -115,7 +121,7 @@ class _SignUpProviderScreenState extends ConsumerState<SignUpProviderScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('Business sign up')),
+      appBar: AppBar(title: const Text('Business information')),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -125,46 +131,92 @@ class _SignUpProviderScreenState extends ConsumerState<SignUpProviderScreen> {
               vertical: AppSpacing.lg,
             ),
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 480),
+              constraints: const BoxConstraints(maxWidth: 520),
               child: Form(
                 key: _formKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Text(
-                      'List your business',
-                      style: Theme.of(context).textTheme.headlineLarge,
+                    const SignupStepHeader(
+                      step: 2,
+                      total: 4,
+                      title: 'Tell us about your business',
+                      subtitle:
+                          'This is what customers will see on your listing. '
+                          'You can edit it later from your dashboard.',
+                      stepLabels: [
+                        'Plan',
+                        'Business',
+                        'Advertising',
+                        'Agreement',
+                      ],
                     ),
-                    const SizedBox(height: AppSpacing.xs),
-                    Text(
-                      'Your listing follows the same layout as every 702FORU business.',
-                      style: Theme.of(context).textTheme.bodyMedium,
+                    const SizedBox(height: AppSpacing.lg),
+
+                    AppCard(
+                      color: AppColors.purple.withValues(alpha: 0.05),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.md,
+                        vertical: AppSpacing.sm,
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.storefront_outlined,
+                              size: 18, color: AppColors.purple),
+                          const SizedBox(width: AppSpacing.sm),
+                          Expanded(
+                            child: Text(
+                              '${BusinessListingPricing.planName} · '
+                              '${BusinessListingPricing.summary}',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
 
-                    // ── Business details ──────────────────────────────────
+                    // ── Business details ────────────────────────────────
                     const SizedBox(height: AppSpacing.xl),
                     const _FormSectionLabel('Business details'),
                     AppTextField(
+                      controller: _legalName,
+                      label: 'Legal business name',
+                      prefixIcon: Icons.badge_outlined,
+                      textInputAction: TextInputAction.next,
+                      isRequired: true,
+                      validator: (value) => Validators.minLength(
+                        value,
+                        2,
+                        field: 'Legal business name',
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    AppTextField(
                       controller: _businessName,
-                      label: 'Business name',
+                      label: 'Public business name',
+                      hint: 'The name customers will see',
                       prefixIcon: Icons.storefront_outlined,
                       textInputAction: TextInputAction.next,
                       isRequired: true,
-                      validator: (value) =>
-                          Validators.minLength(value, 2, field: 'Business name'),
+                      validator: (value) => Validators.minLength(
+                        value,
+                        2,
+                        field: 'Public business name',
+                      ),
                     ),
                     const SizedBox(height: AppSpacing.md),
-
-                    // ── Category picker ───────────────────────────────────
                     AsyncValueView<List<Category>>(
                       value: categories,
                       loading: const AppLoading(label: 'Loading categories…'),
                       onRetry: () => ref.invalidate(categoriesProvider),
                       builder: (context, list) => DropdownButtonFormField<String>(
-                        value: _categoryId,
+                        initialValue: _categoryId,
                         isExpanded: true,
                         decoration: const InputDecoration(
-                          labelText: 'Category *',
+                          labelText: 'Business category *',
                           prefixIcon: Icon(Icons.category_outlined, size: 20),
                         ),
                         hint: const Text('Choose a category'),
@@ -188,7 +240,7 @@ class _SignUpProviderScreenState extends ConsumerState<SignUpProviderScreen> {
                     const SizedBox(height: AppSpacing.md),
                     AppTextField(
                       controller: _address,
-                      label: 'Address',
+                      label: 'Business address',
                       hint: '123 Main St, Las Vegas, NV',
                       prefixIcon: Icons.location_on_outlined,
                       textInputAction: TextInputAction.next,
@@ -198,19 +250,44 @@ class _SignUpProviderScreenState extends ConsumerState<SignUpProviderScreen> {
                     ),
                     const SizedBox(height: AppSpacing.md),
                     AppTextField(
+                      controller: _serviceArea,
+                      label: 'Listing location / service area',
+                      hint: 'e.g. Summerlin and the west valley',
+                      prefixIcon: Icons.map_outlined,
+                      textInputAction: TextInputAction.next,
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    AppTextField(
+                      controller: _hours,
+                      label: 'Hours of operation',
+                      hint: 'Mon–Fri 9am–6pm',
+                      prefixIcon: Icons.schedule_outlined,
+                      textInputAction: TextInputAction.next,
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    AppTextField(
                       controller: _description,
-                      label: 'Short description',
+                      label: 'Short business description',
                       hint: 'What makes your business special?',
-                      maxLines: 3,
+                      maxLines: 4,
                       textInputAction: TextInputAction.newline,
                     ),
-
-                    // ── Account details ───────────────────────────────────
-                    const SizedBox(height: AppSpacing.xl),
-                    const _FormSectionLabel('Your account'),
+                    const SizedBox(height: AppSpacing.md),
                     AppTextField(
-                      controller: _ownerName,
-                      label: 'Your full name',
+                      controller: _website,
+                      label: 'Website / social media URL',
+                      hint: 'https://…',
+                      prefixIcon: Icons.language_outlined,
+                      keyboardType: TextInputType.url,
+                      textInputAction: TextInputAction.next,
+                    ),
+
+                    // ── Contact ─────────────────────────────────────────
+                    const SizedBox(height: AppSpacing.xl),
+                    const _FormSectionLabel('Authorized contact'),
+                    AppTextField(
+                      controller: _contactName,
+                      label: 'Contact name',
                       prefixIcon: Icons.person_outline_rounded,
                       textInputAction: TextInputAction.next,
                       isRequired: true,
@@ -218,18 +295,16 @@ class _SignUpProviderScreenState extends ConsumerState<SignUpProviderScreen> {
                     ),
                     const SizedBox(height: AppSpacing.md),
                     AppTextField(
-                      controller: _email,
-                      label: 'Business email',
-                      prefixIcon: Icons.mail_outline_rounded,
-                      keyboardType: TextInputType.emailAddress,
+                      controller: _contactTitle,
+                      label: 'Title',
+                      hint: 'Owner, manager, …',
+                      prefixIcon: Icons.work_outline_rounded,
                       textInputAction: TextInputAction.next,
-                      isRequired: true,
-                      validator: Validators.email,
                     ),
                     const SizedBox(height: AppSpacing.md),
                     AppTextField(
                       controller: _phone,
-                      label: 'Phone',
+                      label: 'Business phone',
                       prefixIcon: Icons.phone_outlined,
                       keyboardType: TextInputType.phone,
                       textInputAction: TextInputAction.next,
@@ -237,101 +312,48 @@ class _SignUpProviderScreenState extends ConsumerState<SignUpProviderScreen> {
                       validator: Validators.phone,
                     ),
                     const SizedBox(height: AppSpacing.md),
+                    AppTextField(
+                      controller: _email,
+                      label: 'Email address',
+                      hint: 'you@business.com',
+                      prefixIcon: Icons.mail_outline_rounded,
+                      keyboardType: TextInputType.emailAddress,
+                      textInputAction: TextInputAction.next,
+                      isRequired: true,
+                      validator: Validators.email,
+                    ),
+
+                    // ── Account ─────────────────────────────────────────
+                    const SizedBox(height: AppSpacing.xl),
+                    const _FormSectionLabel('Your account'),
                     AppPasswordField(
                       controller: _password,
                       label: 'Password',
                       isRequired: true,
                       validator: Validators.password,
                     ),
-
-                    // ── Billing model ─────────────────────────────────────
-                    const SizedBox(height: AppSpacing.xl),
-                    const _FormSectionLabel('How would you like to be billed?'),
-                    _BillingOption(
-                      title: 'Run payments through 702FORU',
-                      description:
-                          'We process the sale and take a 12% commission. Coupon usage is tracked with your 702-4U code and billed monthly.',
-                      selected: _billing == BillingModel.commission,
-                      onTap: () =>
-                          setState(() => _billing = BillingModel.commission),
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    _BillingOption(
-                      title: 'Flat monthly service fee',
-                      description:
-                          'Keep your own payment processing. We charge a flat \$149/month for the listing and coupon tracking.',
-                      selected: _billing == BillingModel.flatFee,
-                      onTap: () =>
-                          setState(() => _billing = BillingModel.flatFee),
-                    ),
-
-                    // ── Agreement ─────────────────────────────────────────
-                    const SizedBox(height: AppSpacing.lg),
-                    AppCard(
-                      color: AppColors.purple.withValues(alpha: 0.05),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              SizedBox(
-                                height: 26,
-                                width: 26,
-                                child: Checkbox(
-                                  value: _acceptedTerms,
-                                  onChanged: (value) => setState(() {
-                                    _acceptedTerms = value ?? false;
-                                    _showTermsError = false;
-                                  }),
-                                  activeColor: AppColors.purple,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: AppSpacing.sm),
-                              Expanded(
-                                child: Text(
-                                  'I accept the 702FORU provider agreement',
-                                  style: TextStyle(
-                                    fontSize: 13.5,
-                                    fontWeight: FontWeight.w600,
-                                    color: _showTermsError
-                                        ? AppColors.error
-                                        : AppColors.textPrimary,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: AppSpacing.xs),
-                          Text(
-                            'Your business will be reviewed and can be removed at any time. '
-                            'Commission is calculated on sales attributed to your 702-4U tracking code.',
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
-                        ],
-                      ),
+                    const SizedBox(height: AppSpacing.md),
+                    AppPasswordField(
+                      controller: _confirm,
+                      label: 'Confirm password',
+                      isRequired: true,
+                      validator: (value) =>
+                          Validators.confirmPassword(value, _password.text),
                     ),
 
                     const SizedBox(height: AppSpacing.xl),
                     AppButton(
-                      label: 'Create my listing',
+                      label: 'Continue to advertising',
                       size: AppButtonSize.large,
-                      icon: Icons.storefront_outlined,
-                      isLoading: _isBusy,
-                      onPressed: _submit,
+                      trailingIcon: Icons.arrow_forward_rounded,
+                      onPressed: _continue,
                     ),
-                    const SizedBox(height: AppSpacing.md),
-                    Center(
-                      child: AppButton(
-                        label: 'How it works',
-                        variant: AppButtonVariant.ghost,
-                        size: AppButtonSize.small,
-                        isFullWidth: false,
-                        onPressed: () => Navigator.of(context)
-                            .pushNamed(AppRoutes.howItWorks),
-                      ),
+                    const SizedBox(height: AppSpacing.sm),
+                    AppButton(
+                      label: 'Back to plan',
+                      variant: AppButtonVariant.ghost,
+                      size: AppButtonSize.small,
+                      onPressed: () => Navigator.of(context).pop(),
                     ),
                   ],
                 ),
@@ -361,63 +383,6 @@ class _FormSectionLabel extends StatelessWidget {
           letterSpacing: 0.8,
           color: AppColors.purple,
         ),
-      ),
-    );
-  }
-}
-
-class _BillingOption extends StatelessWidget {
-  const _BillingOption({
-    required this.title,
-    required this.description,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final String title;
-  final String description;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppCard(
-      onTap: onTap,
-      border: selected
-          ? Border.all(color: AppColors.purple, width: 1.6)
-          : Border.all(color: AppColors.greyLight),
-      padding: const EdgeInsets.all(AppSpacing.md),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(
-            selected
-                ? Icons.radio_button_checked_rounded
-                : Icons.radio_button_off_rounded,
-            color: selected ? AppColors.purple : AppColors.grey,
-            size: 20,
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  description,
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }

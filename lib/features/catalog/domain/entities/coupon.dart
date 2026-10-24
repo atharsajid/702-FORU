@@ -2,7 +2,7 @@ import '../../../../core/utils/json_utils.dart';
 
 /// A redeemable coupon belonging to a business.
 ///
-/// [redemptionCount] powers the usage/billing reporting the client asked for
+/// [redemptionCount] powers the usage reporting the client asked for
 /// ("track my code 702-4U … so we can bill them").
 class Coupon {
   const Coupon({

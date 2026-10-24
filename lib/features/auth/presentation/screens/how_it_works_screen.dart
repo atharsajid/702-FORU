@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/config/pricing.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
@@ -58,9 +59,9 @@ class HowItWorksScreen extends StatelessWidget {
                 ),
                 _Step(
                   icon: Icons.confirmation_number_outlined,
-                  title: 'Redeem exclusive coupons',
+                  title: 'Redeem your coupons',
                   body:
-                      'Show the coupon code in store. Your usage is tracked so partners can be billed fairly.',
+                      'Free accounts include ${ConsumerCouponPricing.freeCoupons} coupons. Show the code in store, and upgrade any time for more.',
                 ),
                 _Step(
                   icon: Icons.rate_review_outlined,
@@ -74,13 +75,19 @@ class HowItWorksScreen extends StatelessWidget {
             ),
             _HowItWorksTab(
               intro:
-                  'List your business in front of thousands of Las Vegas locals and visitors.',
+                  'List your business in front of thousands of Las Vegas locals and visitors — free for ${BusinessListingPricing.trialDays} days.',
               steps: const [
                 _Step(
                   icon: Icons.app_registration_rounded,
-                  title: 'Sign up as a business',
+                  title: 'Choose the Basic Listing',
                   body:
-                      'Choose a category and add your listing details — it takes a few minutes.',
+                      'Free for ${BusinessListingPricing.trialDays} days, then ${BusinessListingPricing.monthlyLabel} unless you cancel. Add advertising whenever you are ready.',
+                ),
+                _Step(
+                  icon: Icons.badge_outlined,
+                  title: 'Add your business information',
+                  body:
+                      'Legal and public name, category, address, contact details, hours and a short description — the same details as the enrollment form.',
                 ),
                 _Step(
                   icon: Icons.dashboard_customize_outlined,
@@ -92,22 +99,22 @@ class HowItWorksScreen extends StatelessWidget {
                   icon: Icons.local_offer_outlined,
                   title: 'Create coupons',
                   body:
-                      'Each coupon carries your 702-4U tracking code so every redemption is attributed to you.',
+                      'Each coupon carries your 702-4U code, so you can see which offers are working.',
                 ),
                 _Step(
-                  icon: Icons.insights_outlined,
-                  title: 'Track usage',
+                  icon: Icons.account_balance_wallet_outlined,
+                  title: 'Get paid directly',
                   body:
-                      'See how many people used your code, and how much revenue it generated.',
+                      'Customers pay you directly. 702FORU does not collect customer payments or take a commission on your sales.',
                 ),
                 _Step(
-                  icon: Icons.receipt_long_outlined,
-                  title: 'Bill your way',
+                  icon: Icons.campaign_outlined,
+                  title: 'Grow with advertising',
                   body:
-                      'Run payments through 702FORU for a 12% commission, or pay a flat monthly service fee.',
+                      'Ask for a quote on Spotlight, video advertising or a premium banner. Pricing is confirmed before anything is charged.',
                 ),
               ],
-              ctaLabel: 'List your business',
+              ctaLabel: 'Start my free listing',
               ctaRoute: AppRoutes.signUpProvider,
             ),
           ],

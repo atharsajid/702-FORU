@@ -116,7 +116,7 @@ class ProfileView extends ConsumerWidget {
                       ),
                       SizedBox(height: 2),
                       Text(
-                        'Manage your listing, coupons and billing',
+                        'Manage your listing, coupons and plan',
                         style: TextStyle(
                           color: AppColors.white,
                           fontSize: 12.5,
@@ -231,7 +231,7 @@ class _GuestProfile extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(
-              'Save favourites, redeem exclusive coupons and leave reviews for the businesses you love.',
+              'Save favourites, redeem 10 free coupons and leave reviews for the businesses you love.',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium,
             ),

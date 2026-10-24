@@ -39,27 +39,12 @@ class ProviderSummary {
     required this.redemptions,
     required this.reviews,
     required this.rating,
-    required this.commissionOwed,
-    required this.flatFee,
   });
 
   final int coupons;
   final int redemptions;
   final int reviews;
   final double rating;
-
-  /// 12% commission model estimate (per the client's agreement).
-  final double commissionOwed;
-
-  /// Flat monthly service fee option.
-  final double flatFee;
-
-  static const double commissionRate = 0.12;
-  static const double monthlyFlatFee = 149.0;
-
-  /// Assumed average ticket used to estimate commission until real order data
-  /// exists.
-  static const double averageTicket = 42.0;
 }
 
 final providerSummaryProvider = FutureProvider<ProviderSummary>((ref) async {
@@ -70,8 +55,6 @@ final providerSummaryProvider = FutureProvider<ProviderSummary>((ref) async {
       redemptions: 0,
       reviews: 0,
       rating: 0,
-      commissionOwed: 0,
-      flatFee: ProviderSummary.monthlyFlatFee,
     );
   }
 
@@ -83,14 +66,10 @@ final providerSummaryProvider = FutureProvider<ProviderSummary>((ref) async {
     (sum, coupon) => sum + coupon.redemptionCount,
   );
 
-  final gross = redemptions * ProviderSummary.averageTicket;
-
   return ProviderSummary(
     coupons: coupons.length,
     redemptions: redemptions,
     reviews: reviews.length,
     rating: business.rating,
-    commissionOwed: gross * ProviderSummary.commissionRate,
-    flatFee: ProviderSummary.monthlyFlatFee,
   );
 });

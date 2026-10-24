@@ -19,6 +19,8 @@ import '../../domain/entities/business.dart';
 import '../../domain/entities/coupon.dart';
 import '../../domain/entities/review.dart';
 import '../providers/catalog_providers.dart';
+import '../providers/coupon_quota_providers.dart';
+import '../widgets/coupon_access_sheet.dart';
 
 /// The layout every business on 702FORU shares.
 class BusinessScreen extends ConsumerWidget {
@@ -169,14 +171,11 @@ class _BusinessContent extends ConsumerWidget {
 
                 Row(
                   children: [
-                    if (business.isSponsored) const AppTag(label: 'SPOTLIGHT', color: AppColors.gold, textColor: AppColors.navy, compact: true),
-                    if (business.isSponsored && business.trackingCode.isNotEmpty) const SizedBox(width: AppSpacing.sm),
-                    if (business.trackingCode.isNotEmpty)
-                      AppTag(
-                        label: business.trackingCode,
-                        icon: Icons.qr_code_2_rounded,
-                        color: AppColors.purple.withValues(alpha: 0.10),
-                        textColor: AppColors.purple,
+                    if (business.isSponsored)
+                      const AppTag(
+                        label: 'SPOTLIGHT',
+                        color: AppColors.gold,
+                        textColor: AppColors.navy,
                         compact: true,
                       ),
                   ],
@@ -186,6 +185,14 @@ class _BusinessContent extends ConsumerWidget {
 
                 // ── Address ──────────────────────────────────────────────
                 _InfoRow(icon: Icons.location_on_outlined, text: business.address.isEmpty ? 'Las Vegas, NV' : business.address),
+                if (business.serviceArea.isNotEmpty) ...[
+                  const SizedBox(height: AppSpacing.xs),
+                  _InfoRow(icon: Icons.map_outlined, text: business.serviceArea),
+                ],
+                if (business.hours.isNotEmpty) ...[
+                  const SizedBox(height: AppSpacing.xs),
+                  _InfoRow(icon: Icons.schedule_outlined, text: business.hours),
+                ],
                 const SizedBox(height: AppSpacing.sm),
 
                 // ── Map with distance ────────────────────────────────────
@@ -262,6 +269,8 @@ class _BusinessContent extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _SectionTitle('Coupons'),
+                    const SizedBox(height: AppSpacing.sm),
+                    const CouponAllowanceBar(),
                     const SizedBox(height: AppSpacing.sm),
                     for (final coupon in list)
                       Padding(
@@ -360,24 +369,44 @@ class _BusinessContent extends ConsumerWidget {
   Future<void> _redeem(BuildContext context, WidgetRef ref, Coupon coupon) async {
     final user = ref.read(currentUserProvider);
     if (user == null) {
-      Navigator.of(context).pushNamed(AppRoutes.login);
+      await showGuestCouponSheet(context);
+      return;
+    }
+
+    final quota = await ref.read(couponQuotaProvider.future);
+    if (!quota.canRedeem) {
+      if (context.mounted) await showCouponUpgradeSheet(context);
       return;
     }
 
     final result = await ref.read(redeemCouponProvider)(coupon.id);
     if (!context.mounted) return;
 
-    result.when(
-      success: (redeemed) {
+    await result.when(
+      success: (redeemed) async {
+        await ref.read(couponQuotaProvider.notifier).recordRedemption();
+        if (!context.mounted) return;
+        final remaining =
+            ref.read(couponQuotaProvider).valueOrNull?.remaining ?? 0;
         ref.invalidate(couponsForBusinessProvider(business.id));
-        _showCodeDialog(context, redeemed);
+        await _showCodeDialog(context, redeemed, remaining);
+        // The client asked for the upgrade prompt once the 10 free coupons
+        // are gone, so show it as soon as the last code dialog is dismissed.
+        if (remaining == 0 && context.mounted) {
+          await showCouponUpgradeSheet(context);
+        }
       },
-      failure: (failure) => context.showSnack(failure.message, isError: true),
+      failure: (failure) async =>
+          context.showSnack(failure.message, isError: true),
     );
   }
 
-  void _showCodeDialog(BuildContext context, Coupon coupon) {
-    showDialog<void>(
+  Future<void> _showCodeDialog(
+    BuildContext context,
+    Coupon coupon,
+    int remaining,
+  ) {
+    return showDialog<void>(
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: Text(coupon.title),
@@ -395,7 +424,7 @@ class _BusinessContent extends ConsumerWidget {
             const SizedBox(height: AppSpacing.md),
             Text(
               'Show this code to the business to redeem. '
-              'Usage is tracked under ${coupon.businessId} for billing.',
+              'Your account has $remaining free coupons left.',
               textAlign: TextAlign.center,
               style: Theme.of(dialogContext).textTheme.bodySmall,
             ),

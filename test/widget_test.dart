@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:for_you/core/config/pricing.dart';
 import 'package:for_you/core/error/error_handler.dart';
 import 'package:for_you/core/error/exceptions.dart';
 import 'package:for_you/core/error/failures.dart';
@@ -22,6 +23,16 @@ import 'package:for_you/features/attractions/presentation/providers/attraction_p
 import 'package:for_you/features/attractions/presentation/screens/attraction_detail_screen.dart';
 import 'package:for_you/features/attractions/presentation/screens/free_things_screen.dart';
 import 'package:for_you/features/auth/domain/entities/app_user.dart';
+import 'package:for_you/features/auth/presentation/providers/business_signup_draft.dart';
+import 'package:for_you/features/auth/presentation/screens/how_it_works_screen.dart';
+import 'package:for_you/features/auth/presentation/screens/signup_ads_screen.dart';
+import 'package:for_you/features/auth/presentation/screens/signup_enrollment_screen.dart';
+import 'package:for_you/features/auth/presentation/screens/signup_plan_screen.dart';
+import 'package:for_you/features/catalog/domain/entities/business.dart';
+import 'package:for_you/features/catalog/domain/entities/coupon_quota.dart';
+import 'package:for_you/features/catalog/presentation/widgets/coupon_access_sheet.dart';
+import 'package:for_you/features/auth/presentation/providers/auth_providers.dart';
+import 'package:for_you/features/offers/presentation/screens/spotlight_info_screen.dart';
 import 'package:for_you/features/offers/domain/entities/featured_spotlight.dart';
 import 'package:for_you/features/offers/domain/entities/offer.dart';
 import 'package:for_you/shared/widgets/app_button.dart';
@@ -470,4 +481,315 @@ void main() {
       expect(spotlight.hasVideo, isFalse);
     });
   });
+
+  group('Pricing', () {
+    test('Basic Listing uses the confirmed trial and monthly price', () {
+      expect(BusinessListingPricing.trialDays, 30);
+      expect(BusinessListingPricing.monthlyPrice, 9.99);
+      expect(BusinessListingPricing.monthlyLabel, r'$9.99 / month');
+      expect(BusinessListingPricing.summary, contains(r'$9.99'));
+      expect(
+        BusinessListingPricing.trialEndFrom(DateTime(2026, 10, 1)),
+        DateTime(2026, 10, 31),
+      );
+    });
+
+    test('all three advertising placements are quote-only', () {
+      expect(
+        advertisingProducts.map((product) => product.id),
+        containsAll(<String>['spotlight', 'video', 'premium-banner']),
+      );
+      for (final product in advertisingProducts) {
+        expect(product.priceLabel, 'Request a quote',
+            reason: product.id);
+        expect(product.features, isNotEmpty, reason: product.id);
+      }
+    });
+
+    test('consumer coupon passes match the confirmed prices', () {
+      expect(ConsumerCouponPricing.freeCoupons, 10);
+      expect(CouponPassType.oneTime.priceLabel, r'$1.99 one-time');
+      expect(CouponPassType.monthly.priceLabel, r'$1.99 / month');
+      expect(CouponPassType.yearly.priceLabel, r'$19.99 / year');
+      expect(CouponPassType.oneTime.durationDays, isNull);
+      expect(CouponPassType.monthly.durationDays, 30);
+      expect(CouponPassType.yearly.durationDays, 365);
+    });
+  });
+
+  group('CouponQuota', () {
+    test('a free account gets ten coupons and is then blocked', () {
+      var quota = const CouponQuota();
+
+      for (var i = 0; i < ConsumerCouponPricing.freeCoupons; i++) {
+        expect(quota.canRedeem, isTrue, reason: 'coupon ${i + 1}');
+        quota = quota.consume();
+      }
+
+      expect(quota.remaining, 0);
+      expect(quota.canRedeem, isFalse);
+    });
+
+    test('the one-time pass unlocks exactly one more coupon', () {
+      final quota =
+          const CouponQuota(used: ConsumerCouponPricing.freeCoupons)
+              .withPass(CouponPassType.oneTime);
+
+      expect(quota.canRedeem, isTrue);
+      expect(quota.remaining, 1);
+      expect(quota.consume().canRedeem, isFalse);
+    });
+
+    test('monthly and yearly passes lift the limit until they expire', () {
+      final start = DateTime(2026, 10, 1);
+      final monthly = const CouponQuota(used: 10)
+          .withPass(CouponPassType.monthly, now: start);
+
+      expect(monthly.hasUnlimitedAt(start), isTrue);
+      expect(monthly.hasUnlimitedAt(start.add(const Duration(days: 29))), isTrue);
+      expect(monthly.hasUnlimitedAt(start.add(const Duration(days: 31))), isFalse);
+
+      final yearly = const CouponQuota(used: 10)
+          .withPass(CouponPassType.yearly, now: start);
+      expect(yearly.hasUnlimitedAt(start.add(const Duration(days: 364))), isTrue);
+    });
+
+    test('round-trips through a map', () {
+      final quota = const CouponQuota(used: 4, bonusCredits: 1)
+          .withPass(CouponPassType.yearly, now: DateTime(2026, 10, 1));
+      final restored = CouponQuota.fromMap(quota.toMap());
+
+      expect(restored.used, quota.used);
+      expect(restored.bonusCredits, 1);
+      expect(restored.unlimitedUntil, quota.unlimitedUntil);
+    });
+  });
+
+  group('Business plans', () {
+    test('persists the listing plan, add-ons and trial date', () {
+      final business = Business(
+        id: 'b-new',
+        name: 'New Business',
+        categoryId: 'food-drink',
+        createdAt: DateTime(2026, 10, 1),
+        legalName: 'New Business LLC',
+        hours: 'Mon–Fri 9am–6pm',
+        serviceArea: 'Summerlin',
+        listingPlan: BusinessListingPricing.planId,
+        advertisingAddOns: const ['spotlight'],
+        trialEndsAt: DateTime(2026, 10, 31),
+      );
+
+      final restored = Business.fromMap(business.toMap());
+
+      expect(restored.legalName, 'New Business LLC');
+      expect(restored.hours, 'Mon–Fri 9am–6pm');
+      expect(restored.serviceArea, 'Summerlin');
+      expect(restored.listingPlan, 'basic');
+      expect(restored.advertisingAddOns, ['spotlight']);
+      expect(restored.trialEndsAt, DateTime(2026, 10, 31));
+    });
+  });
+
+  group('Advertising page', () {
+    testWidgets('shows the Basic price and all three placements', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        const MaterialApp(home: SpotlightInfoScreen()),
+      );
+      await tester.pump();
+
+      expect(find.text('Spotlight placement'), findsOneWidget);
+      expect(find.text('Video advertising'), findsOneWidget);
+      expect(find.text('Premium banner'), findsOneWidget);
+      expect(find.textContaining(r'$9.99'), findsWidgets);
+      expect(find.textContaining('12%'), findsNothing);
+      expect(find.textContaining('does not collect'), findsOneWidget);
+    });
+
+    testWidgets('fits a narrow phone without overflowing', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(320, 700));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+
+      await tester.pumpWidget(
+        const MaterialApp(home: SpotlightInfoScreen()),
+      );
+      await tester.pump();
+
+      expect(tester.takeException(), isNull);
+    });
+  });
+
+  group('Business signup', () {
+    testWidgets('step 1 shows the free trial and monthly price', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        const MaterialApp(home: SignupPlanScreen()),
+      );
+      await tester.pump();
+
+      expect(find.text('Basic Listing'), findsOneWidget);
+      expect(find.textContaining('FREE FOR 30 DAYS'), findsOneWidget);
+      expect(find.textContaining(r'$9.99 / month'), findsWidgets);
+      expect(find.text('Continue'), findsOneWidget);
+    });
+  });
+
+  group('Coupon access', () {
+    testWidgets('guests are offered a free account with 10 coupons', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            isAuthenticatedProvider.overrideWithValue(false),
+          ],
+          child: const MaterialApp(
+            home: Scaffold(body: CouponAllowanceBar()),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.textContaining('10 coupons included'), findsOneWidget);
+      expect(find.text('Sign up'), findsOneWidget);
+    });
+
+    testWidgets('upgrade sheet offers the three confirmed passes', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp(
+            home: Scaffold(
+              body: Builder(
+                builder: (context) => TextButton(
+                  onPressed: () => showCouponUpgradeSheet(context),
+                  child: const Text('open upgrade'),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('open upgrade'));
+      await tester.pumpAndSettle();
+
+      expect(find.text(r'$1.99 one-time'), findsOneWidget);
+      expect(find.text(r'$1.99 / month'), findsOneWidget);
+      expect(find.text(r'$19.99 / year'), findsOneWidget);
+      expect(find.textContaining('no card is charged'), findsOneWidget);
+    });
+  });
+
+  group('Business signup flow', () {
+    testWidgets('advertising step toggles a placement on and off', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        const ProviderScope(
+          child: MaterialApp(home: SignupAdsScreen()),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.text('Spotlight placement'), findsOneWidget);
+      expect(find.text('Video advertising'), findsOneWidget);
+      expect(find.text('Premium banner'), findsOneWidget);
+      expect(find.text('Continue without ads'), findsOneWidget);
+
+      await tester.tap(find.text('Spotlight placement'));
+      await tester.pump();
+
+      expect(find.text('Continue with 1 placement'), findsOneWidget);
+      expect(find.textContaining('not added to your bill yet'), findsOneWidget);
+    });
+
+    testWidgets('enrollment refuses to open without business information', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        const ProviderScope(
+          child: MaterialApp(home: SignupEnrollmentScreen()),
+        ),
+      );
+      await tester.pump();
+
+      expect(
+        find.text('Your business information is missing'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('enrollment shows the trial, price and required agreements', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            businessSignupDraftProvider
+                .overrideWith(_FilledDraftController.new),
+          ],
+          child: const MaterialApp(home: SignupEnrollmentScreen()),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.text('Neon Bites'), findsOneWidget);
+      expect(find.textContaining(r'$9.99 / month'), findsWidgets);
+      expect(find.text('Spotlight placement'), findsOneWidget);
+      expect(find.textContaining('I authorize recurring'), findsOneWidget);
+      expect(find.textContaining('12%'), findsNothing);
+
+      final activate = tester.widget<AppButton>(
+        find.widgetWithText(AppButton, 'Activate my listing'),
+      );
+      expect(activate.enabled, isFalse);
+    });
+  });
+
+  group('How it works', () {
+    testWidgets('removes commission wording and explains direct payment', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        const MaterialApp(home: HowItWorksScreen()),
+      );
+      await tester.pump();
+
+      expect(find.textContaining('10 coupons'), findsOneWidget);
+      expect(find.textContaining('12%'), findsNothing);
+
+      await tester.tap(find.text('For businesses'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Get paid directly'), findsOneWidget);
+      expect(
+        find.textContaining('does not collect customer payments'),
+        findsOneWidget,
+      );
+    });
+  });
+}
+
+class _FilledDraftController extends BusinessSignupDraftController {
+  @override
+  BusinessSignupDraft build() => const BusinessSignupDraft(
+        legalName: 'Neon Bites LLC',
+        businessName: 'Neon Bites',
+        contactName: 'Josie S.',
+        contactTitle: 'Owner',
+        email: 'josie@example.com',
+        phone: '+1 702 555 0100',
+        address: '1 Fremont St, Las Vegas, NV',
+        description: 'Late-night bites downtown.',
+        hours: 'Daily 5pm–2am',
+        serviceArea: 'Downtown Las Vegas',
+        password: 'demo123',
+        categoryId: 'food-drink',
+        advertisingAddOns: {'spotlight'},
+      );
 }

@@ -16,7 +16,7 @@ import '../../../catalog/domain/entities/coupon.dart';
 import '../../../catalog/presentation/providers/catalog_providers.dart';
 import '../providers/provider_providers.dart';
 
-/// Create and monitor coupons; redemptions drive monthly billing.
+/// Create and monitor coupons; redemptions show how each offer is performing.
 class ProviderCouponsScreen extends ConsumerWidget {
   const ProviderCouponsScreen({super.key});
 

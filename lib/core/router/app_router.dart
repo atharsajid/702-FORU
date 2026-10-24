@@ -6,6 +6,9 @@ import '../../features/attractions/presentation/screens/free_things_screen.dart'
 import '../../features/auth/presentation/screens/forgot_password_screen.dart';
 import '../../features/auth/presentation/screens/how_it_works_screen.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
+import '../../features/auth/presentation/screens/signup_ads_screen.dart';
+import '../../features/auth/presentation/screens/signup_enrollment_screen.dart';
+import '../../features/auth/presentation/screens/signup_plan_screen.dart';
 import '../../features/auth/presentation/screens/signup_provider_screen.dart';
 import '../../features/auth/presentation/screens/signup_role_screen.dart';
 import '../../features/auth/presentation/screens/signup_user_screen.dart';
@@ -62,7 +65,13 @@ class AppRouter {
       case AppRoutes.signUpUser:
         return _page(const SignUpUserScreen(), settings);
       case AppRoutes.signUpProvider:
+        return _page(const SignupPlanScreen(), settings);
+      case AppRoutes.signUpProviderBusiness:
         return _page(const SignUpProviderScreen(), settings);
+      case AppRoutes.signUpProviderAds:
+        return _page(const SignupAdsScreen(), settings);
+      case AppRoutes.signUpProviderEnrollment:
+        return _page(const SignupEnrollmentScreen(), settings);
       case AppRoutes.howItWorks:
         return _page(const HowItWorksScreen(), settings);
 

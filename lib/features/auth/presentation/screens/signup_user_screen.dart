@@ -104,7 +104,7 @@ class _SignUpUserScreenState extends ConsumerState<SignUpUserScreen> {
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
-                      'Free forever. No card required.',
+                      'Free account · 10 coupons included. No card required.',
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     const SizedBox(height: AppSpacing.xl),

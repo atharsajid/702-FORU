@@ -7,6 +7,7 @@ import '../../features/auth/data/datasources/auth_local_data_source.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/catalog/data/datasources/catalog_local_data_source.dart';
+import '../../features/catalog/data/datasources/coupon_quota_local_data_source.dart';
 import '../../features/catalog/data/repositories/catalog_repository_impl.dart';
 import '../../features/catalog/domain/repositories/catalog_repository.dart';
 import '../../features/notifications/data/datasources/notifications_local_data_source.dart';
@@ -23,6 +24,11 @@ final authLocalDataSourceProvider = Provider<AuthLocalDataSource>(
 
 final catalogLocalDataSourceProvider = Provider<CatalogLocalDataSource>(
   (ref) => const CatalogLocalDataSource(),
+);
+
+final couponQuotaLocalDataSourceProvider =
+    Provider<CouponQuotaLocalDataSource>(
+  (ref) => const CouponQuotaLocalDataSource(),
 );
 
 final offersLocalDataSourceProvider = Provider<OffersLocalDataSource>(

@@ -11,6 +11,10 @@ class AppRoutes {
   static const String signUpRole = '/signup';
   static const String signUpUser = '/signup/user';
   static const String signUpProvider = '/signup/provider';
+  static const String signUpProviderBusiness = '/signup/provider/business';
+  static const String signUpProviderAds = '/signup/provider/ads';
+  static const String signUpProviderEnrollment =
+      '/signup/provider/enrollment';
   static const String howItWorks = '/how-it-works';
 
   // Content

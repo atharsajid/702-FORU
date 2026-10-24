@@ -47,8 +47,8 @@ class SignUpRoleScreen extends StatelessWidget {
               _RoleCard(
                 icon: Icons.storefront_outlined,
                 title: 'I am a business',
-                description: 'Create your free listing and reach thousands of locals and visitors.',
-                benefits: const ['Your own Airbnb-style listing page', 'Coupons with a 702-4U tracking code', 'Choice of commission or flat billing'],
+                description: 'List your business free for 30 days and reach thousands of locals and visitors.',
+                benefits: const ['30 days free, then \$9.99/month', 'Your own business listing page', 'Optional Spotlight, video and banner ads'],
                 highlighted: true,
                 onTap: () => Navigator.of(context).pushNamed(AppRoutes.signUpProvider),
               ),

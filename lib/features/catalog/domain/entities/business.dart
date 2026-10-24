@@ -22,6 +22,12 @@ class Business {
     this.isSponsored = false,
     this.trackingCode = '',
     this.ownerId,
+    this.legalName = '',
+    this.hours = '',
+    this.serviceArea = '',
+    this.listingPlan = 'basic',
+    this.advertisingAddOns = const [],
+    this.trialEndsAt,
     required this.createdAt,
   });
 
@@ -54,12 +60,30 @@ class Business {
   /// Paid "Spotlight" placement.
   final bool isSponsored;
 
-  /// 702-4U tracking code used for coupon attribution and monthly billing.
+  /// 702-4U code used to attribute coupon redemptions to this listing.
   final String trackingCode;
 
   /// [AppUser.id] of the provider that owns this listing (null for seeded demo
   /// businesses).
   final String? ownerId;
+
+  /// Name registered with the state / on the lease (not public).
+  final String legalName;
+
+  /// Public opening hours, e.g. `Mon–Fri 9am–6pm`.
+  final String hours;
+
+  /// Neighbourhoods or area the business serves.
+  final String serviceArea;
+
+  /// Billing plan id (`basic`). Advertising is quoted separately.
+  final String listingPlan;
+
+  /// Ids of advertising placements the provider asked to be quoted for.
+  final List<String> advertisingAddOns;
+
+  /// End of the free trial (null for seeded / legacy listings).
+  final DateTime? trialEndsAt;
 
   final DateTime createdAt;
 
@@ -82,6 +106,12 @@ class Business {
     bool? isSponsored,
     String? trackingCode,
     String? ownerId,
+    String? legalName,
+    String? hours,
+    String? serviceArea,
+    String? listingPlan,
+    List<String>? advertisingAddOns,
+    DateTime? trialEndsAt,
   }) {
     return Business(
       id: id,
@@ -103,6 +133,12 @@ class Business {
       isSponsored: isSponsored ?? this.isSponsored,
       trackingCode: trackingCode ?? this.trackingCode,
       ownerId: ownerId ?? this.ownerId,
+      legalName: legalName ?? this.legalName,
+      hours: hours ?? this.hours,
+      serviceArea: serviceArea ?? this.serviceArea,
+      listingPlan: listingPlan ?? this.listingPlan,
+      advertisingAddOns: advertisingAddOns ?? this.advertisingAddOns,
+      trialEndsAt: trialEndsAt ?? this.trialEndsAt,
       createdAt: createdAt,
     );
   }
@@ -127,6 +163,12 @@ class Business {
         'isSponsored': isSponsored,
         'trackingCode': trackingCode,
         'ownerId': ownerId,
+        'legalName': legalName,
+        'hours': hours,
+        'serviceArea': serviceArea,
+        'listingPlan': listingPlan,
+        'advertisingAddOns': advertisingAddOns,
+        'trialEndsAt': trialEndsAt?.millisecondsSinceEpoch,
         'createdAt': createdAt.millisecondsSinceEpoch,
       };
 
@@ -150,6 +192,12 @@ class Business {
         isSponsored: Json.toBool(map['isSponsored']),
         trackingCode: Json.string(map['trackingCode']),
         ownerId: Json.nullableString(map['ownerId']),
+        legalName: Json.string(map['legalName']),
+        hours: Json.string(map['hours']),
+        serviceArea: Json.string(map['serviceArea']),
+        listingPlan: Json.string(map['listingPlan'], fallback: 'basic'),
+        advertisingAddOns: Json.stringList(map['advertisingAddOns']),
+        trialEndsAt: Json.nullableDateTime(map['trialEndsAt']),
         createdAt: Json.dateTime(map['createdAt']),
       );
 

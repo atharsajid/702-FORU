@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/config/pricing.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
@@ -172,66 +173,8 @@ class ProviderDashboardScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: AppSpacing.lg),
 
-                      // ── Billing ────────────────────────────────────────
-                      AppCard(
-                        color: AppColors.navy,
-                        padding: const EdgeInsets.all(AppSpacing.lg),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                const Icon(
-                                  Icons.receipt_long_outlined,
-                                  color: AppColors.cyan,
-                                  size: 20,
-                                ),
-                                const SizedBox(width: AppSpacing.sm),
-                                Text(
-                                  'Estimated billing this period',
-                                  style: TextStyle(
-                                    color: AppColors.white.withValues(alpha: 0.85),
-                                    fontSize: 12.5,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: AppSpacing.md),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: _BillingFigure(
-                                    label:
-                                        '12% commission\n(${data.redemptions} × \$${ProviderSummary.averageTicket.toStringAsFixed(0)})',
-                                    value: AppFormatters.price(data.commissionOwed),
-                                  ),
-                                ),
-                                Container(
-                                  height: 46,
-                                  width: 1,
-                                  color: AppColors.white.withValues(alpha: 0.15),
-                                ),
-                                Expanded(
-                                  child: _BillingFigure(
-                                    label: 'Flat fee option',
-                                    value: AppFormatters.price(data.flatFee),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: AppSpacing.sm),
-                            Text(
-                              'Commission is calculated from coupon redemptions tracked '
-                              'through your ${listing.trackingCode} code.',
-                              style: TextStyle(
-                                color: AppColors.white.withValues(alpha: 0.7),
-                                fontSize: 11,
-                                height: 1.4,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      // ── Plan ──────────────────────────────────────────
+                      _PlanCard(listing: listing),
                     ],
                   ),
                   loading: () => const AppLoading(),
@@ -311,8 +254,141 @@ class _StatTile extends StatelessWidget {
   }
 }
 
-class _BillingFigure extends StatelessWidget {
-  const _BillingFigure({required this.label, required this.value});
+/// Current listing plan, trial status and requested advertising add-ons.
+class _PlanCard extends StatelessWidget {
+  const _PlanCard({required this.listing});
+
+  final Business listing;
+
+  @override
+  Widget build(BuildContext context) {
+    final trialEnd = listing.trialEndsAt;
+    final onTrial = trialEnd != null && trialEnd.isAfter(DateTime.now());
+    final daysLeft =
+        trialEnd?.difference(DateTime.now()).inDays.clamp(0, 999);
+
+    final addOnNames = advertisingProducts
+        .where((product) => listing.advertisingAddOns.contains(product.id))
+        .map((product) => product.name)
+        .toList(growable: false);
+
+    return AppCard(
+      color: AppColors.navy,
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.workspace_premium_outlined,
+                color: AppColors.cyan,
+                size: 20,
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Text(
+                'Your listing plan',
+                style: TextStyle(
+                  color: AppColors.white.withValues(alpha: 0.85),
+                  fontSize: 12.5,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Row(
+            children: [
+              Expanded(
+                child: _PlanFigure(
+                  value: BusinessListingPricing.planName,
+                  label: 'Includes your listing page, contacts and coupons.',
+                ),
+              ),
+              Container(
+                height: 46,
+                width: 1,
+                color: AppColors.white.withValues(alpha: 0.15),
+              ),
+              Expanded(
+                child: onTrial
+                    ? _PlanFigure(
+                        value: daysLeft == 0 ? 'Ends today' : '$daysLeft days left',
+                        label:
+                            'Free trial. Then ${BusinessListingPricing.monthlyLabel}.',
+                      )
+                    : _PlanFigure(
+                        value: BusinessListingPricing.monthlyLabel,
+                        label: 'Billed monthly. Cancel any time.',
+                      ),
+              ),
+            ],
+          ),
+          if (addOnNames.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.md),
+            Text(
+              'Requested advertising',
+              style: TextStyle(
+                color: AppColors.white.withValues(alpha: 0.7),
+                fontSize: 11,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.xs),
+            Wrap(
+              spacing: AppSpacing.xs,
+              runSpacing: AppSpacing.xs,
+              children: [
+                for (final name in addOnNames)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.sm,
+                      vertical: 3,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.white.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(AppRadius.pill),
+                    ),
+                    child: Text(
+                      '$name · quote pending',
+                      style: const TextStyle(
+                        color: AppColors.white,
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ],
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            'Coupons redeemed through your ${listing.trackingCode} code are '
+            'tracked as engagement, not billing. Your customers pay you '
+            'directly — 702FORU never takes a commission on your sales.',
+            style: TextStyle(
+              color: AppColors.white.withValues(alpha: 0.7),
+              fontSize: 11,
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          TextButton.icon(
+            onPressed: () =>
+                Navigator.of(context).pushNamed(AppRoutes.spotlightInfo),
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.cyan,
+              padding: const EdgeInsets.symmetric(horizontal: 0),
+            ),
+            icon: const Icon(Icons.campaign_outlined, size: 16),
+            label: const Text('Advertising options'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PlanFigure extends StatelessWidget {
+  const _PlanFigure({required this.label, required this.value});
 
   final String label;
   final String value;
@@ -326,9 +402,12 @@ class _BillingFigure extends StatelessWidget {
         children: [
           Text(
             value,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(
               color: AppColors.white,
-              fontSize: 18,
+              fontSize: 16,
+              height: 1.2,
               fontWeight: FontWeight.w800,
             ),
           ),

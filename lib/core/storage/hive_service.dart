@@ -35,6 +35,9 @@ class HiveBoxes {
   /// Saved/bookmarked business ids for the signed-in user.
   static const String favorites = 'favorites';
 
+  /// Coupon allowance and purchased passes, keyed by user id.
+  static const String couponQuota = 'coupon_quota';
+
   static const List<String> all = [
     session,
     users,
@@ -46,6 +49,7 @@ class HiveBoxes {
     attractions,
     notifications,
     favorites,
+    couponQuota,
   ];
 }
 
