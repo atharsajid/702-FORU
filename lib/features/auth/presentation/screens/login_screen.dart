@@ -1,8 +1,5 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:for_you/core/constant/app_strings.dart';
 import 'package:for_you/shared/widgets/promo_banners.dart';
 
 import '../../../../core/router/app_routes.dart';
@@ -14,7 +11,6 @@ import '../../../../core/utils/responsive.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../shared/widgets/app_button.dart';
 import '../../../../shared/widgets/app_card.dart';
-import '../../../../shared/widgets/app_feedback.dart';
 import '../../../../shared/widgets/app_text_field.dart';
 import '../providers/auth_providers.dart';
 
@@ -129,32 +125,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                     AppButton(label: 'Sign In', size: AppButtonSize.large, isLoading: _isBusy, onPressed: _submit),
 
-                    const SizedBox(height: AppSpacing.xl),
-                    const AppOrDivider(),
-                    const SizedBox(height: AppSpacing.lg),
-
-                    Row(
-                      children: [
-                        Expanded(
-                          child: AppButton(
-                            label: Platform.isIOS ? 'Apple' : 'Google',
-                            icon: Platform.isIOS ? Icons.apple : Icons.g_mobiledata_rounded,
-                            variant: AppButtonVariant.outline,
-                            onPressed: () => context.showSnack(AppStrings.thisFeatureWillBeAvailableSoon),
-                          ),
-                        ),
-                        const SizedBox(width: AppSpacing.md),
-                        Expanded(
-                          child: AppButton(
-                            label: 'Facebook',
-                            icon: Icons.facebook_outlined,
-                            variant: AppButtonVariant.outline,
-                            onPressed: () => context.showSnack(AppStrings.thisFeatureWillBeAvailableSoon),
-                          ),
-                        ),
-                      ],
-                    ),
-
                     const SizedBox(height: AppSpacing.xxl),
 
                     // ── Demo accounts (local-only build) ────────────────
@@ -184,15 +154,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                     const SizedBox(height: AppSpacing.lg),
 
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                    Wrap(
+                      alignment: WrapAlignment.center,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         Text("Haven't an account? ", style: Theme.of(context).textTheme.bodyMedium),
-                        GestureDetector(
-                          onTap: () => Navigator.of(context).pushNamed(AppRoutes.signUpRole),
+                        TextButton(
+                          onPressed: () =>
+                              Navigator.of(context).pushNamed(AppRoutes.signUpRole),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
                           child: const Text(
                             'Sign up now',
-                            style: TextStyle(color: AppColors.purple, fontWeight: FontWeight.w700),
+                            style: TextStyle(fontWeight: FontWeight.w700),
                           ),
                         ),
                       ],

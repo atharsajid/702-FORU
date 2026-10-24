@@ -7,13 +7,16 @@ import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/utils/context_extensions.dart';
+import '../../../../core/utils/external_link.dart';
 import '../../../../core/utils/formatters.dart';
+import '../../../../core/utils/map_launcher.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../../shared/widgets/app_button.dart';
 import '../../../../shared/widgets/app_card.dart';
 import '../../../../shared/widgets/app_feedback.dart';
 import '../../../../shared/widgets/app_network_image.dart';
 import '../../../../shared/widgets/app_rating.dart';
+import '../../../../shared/widgets/map_preview_card.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../domain/entities/business.dart';
 import '../../domain/entities/coupon.dart';
@@ -28,8 +31,8 @@ class BusinessScreen extends ConsumerWidget {
 
   final String businessId;
 
-  /// Rough distance from the city centre, so the map card can show something
-  /// meaningful before real geolocation lands.
+  /// Reference point for the distance label: the centre of the Strip. There is
+  /// no device geolocation yet, so the card never claims "from you".
   static const double _refLat = 36.1699;
   static const double _refLng = -115.1398;
 
@@ -59,8 +62,8 @@ class BusinessScreen extends ConsumerWidget {
         math.sin(dLat / 2) * math.sin(dLat / 2) + math.cos(_toRadians(_refLat)) * math.cos(_toRadians(lat)) * math.sin(dLng / 2) * math.sin(dLng / 2);
     final c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
     final miles = earthRadiusMiles * c;
-    if (miles < 0.1) return '< 0.1 mi from you';
-    return '${miles.toStringAsFixed(1)} mi from you';
+    if (miles < 0.1) return '< 0.1 mi from the Strip';
+    return '${miles.toStringAsFixed(1)} mi from the Strip';
   }
 
   static double _toRadians(double degrees) => degrees * math.pi / 180;
@@ -125,30 +128,6 @@ class _BusinessContent extends ConsumerWidget {
           ),
         ),
 
-        // ── Logo ───────────────────────────────────────────────────────
-        
-          // SliverToBoxAdapter(
-          //   child: Transform.translate(
-          //     offset: const Offset(0, 0),
-          //     child: Center(
-          //       child: Container(
-          //         padding: const EdgeInsets.all(4),
-          //         decoration: const BoxDecoration(color: AppColors.white, shape: BoxShape.circle),
-          //         child: ClipOval(
-          //           child: AppNetworkImage(
-          //             url: business.logoUrl ?? business.coverUrl,
-          //             width: 84,
-          //             height: 84,
-          //             placeholderIcon: Icons.storefront_outlined,
-          //           ),
-          //         ),
-          //       ),
-          //     ),
-          //   ),
-          // ),
-
-        
-
         SliverToBoxAdapter(
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: context.pagePadding, vertical: AppSpacing.lg),
@@ -169,17 +148,15 @@ class _BusinessContent extends ConsumerWidget {
                 ),
                 const SizedBox(height: AppSpacing.sm),
 
-                Row(
-                  children: [
-                    if (business.isSponsored)
-                      const AppTag(
-                        label: 'SPOTLIGHT',
-                        color: AppColors.gold,
-                        textColor: AppColors.navy,
-                        compact: true,
-                      ),
-                  ],
-                ),
+                if (business.isSponsored) ...[
+                  const SizedBox(height: AppSpacing.sm),
+                  const AppTag(
+                    label: 'SPOTLIGHT',
+                    color: AppColors.gold,
+                    textColor: AppColors.navy,
+                    compact: true,
+                  ),
+                ],
 
                 const SizedBox(height: AppSpacing.md),
 
@@ -196,7 +173,15 @@ class _BusinessContent extends ConsumerWidget {
                 const SizedBox(height: AppSpacing.sm),
 
                 // ── Map with distance ────────────────────────────────────
-                _MapCard(label: BusinessScreen.distanceLabel(business), address: business.address),
+                if (business.latitude != null && business.longitude != null)
+                  MapPreviewCard(
+                    latitude: business.latitude!,
+                    longitude: business.longitude!,
+                    label: BusinessScreen.distanceLabel(business),
+                    address: business.address,
+                    height: 132,
+                    onOpen: () => _openMaps(context),
+                  ),
 
                 if (isOwner) ...[
                   const SizedBox(height: AppSpacing.md),
@@ -349,21 +334,68 @@ class _BusinessContent extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const _SectionTitle('Contact & Socials'),
-                const SizedBox(height: AppSpacing.sm),
-                if (business.phone.isNotEmpty) _ContactTile(icon: Icons.phone_outlined, title: 'Phone', value: business.phone),
-                if (business.website.isNotEmpty) ...[
+                if (business.phone.isNotEmpty || business.website.isNotEmpty) ...[
+                  const _SectionTitle('Contact'),
                   const SizedBox(height: AppSpacing.sm),
-                  _ContactTile(icon: Icons.language_outlined, title: 'Website', value: business.website),
+                  if (business.phone.isNotEmpty)
+                    _ContactTile(
+                      icon: Icons.phone_outlined,
+                      title: 'Phone',
+                      value: business.phone,
+                      onTap: () => _call(context),
+                    ),
+                  if (business.phone.isNotEmpty && business.website.isNotEmpty)
+                    const SizedBox(height: AppSpacing.sm),
+                  if (business.website.isNotEmpty)
+                    _ContactTile(
+                      icon: Icons.language_outlined,
+                      title: 'Website',
+                      value: _displayWebsite,
+                      onTap: () => _openWebsite(context),
+                    ),
                 ],
-                if (business.phone.isEmpty && business.website.isEmpty)
-                  Text('Contact details coming soon.', style: Theme.of(context).textTheme.bodyMedium),
               ],
             ),
           ),
         ),
       ],
     );
+  }
+
+  String get _displayWebsite => business.website
+      .replaceFirst(RegExp(r'^https?://'), '')
+      .replaceFirst(RegExp(r'/$'), '');
+
+  Future<void> _openMaps(BuildContext context) async {
+    final launched = await MapLauncher.openCoordinates(
+      latitude: business.latitude!,
+      longitude: business.longitude!,
+    );
+    if (!launched && context.mounted) showMapUnavailable(context);
+  }
+
+  Future<void> _call(BuildContext context) async {
+    final number = business.phone.replaceAll(RegExp(r'[^0-9+]'), '');
+    await _openExternal(context, Uri(scheme: 'tel', path: number));
+  }
+
+  Future<void> _openWebsite(BuildContext context) async {
+    final raw = business.website.trim();
+    final uri = Uri.tryParse(
+      raw.startsWith('http') ? raw : 'https://$raw',
+    );
+    if (uri == null) return;
+    await _openExternal(context, uri);
+  }
+
+  Future<void> _openExternal(BuildContext context, Uri uri) async {
+    final launched = await ExternalLink.open(uri);
+    if (!launched && context.mounted) {
+      context.showSnack(
+        'Could not open this link on this device.',
+        isError: true,
+      );
+    }
   }
 
   Future<void> _redeem(BuildContext context, WidgetRef ref, Coupon coupon) async {
@@ -465,74 +497,23 @@ class _InfoRow extends StatelessWidget {
   }
 }
 
-/// Static stand-in for the interactive map (distance + address).
-class _MapCard extends StatelessWidget {
-  const _MapCard({required this.label, required this.address});
-
-  final String label;
-  final String address;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 120,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: AppColors.navyLight.withValues(alpha: 0.14),
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: AppColors.greyLight),
-      ),
-      child: Stack(
-        children: [
-          Positioned(left: 0, right: 0, top: 0, bottom: 0, child: CustomPaint(painter: _GridPainter())),
-          Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.location_on, color: AppColors.purple, size: 28),
-                const SizedBox(height: AppSpacing.xs),
-                Text(label, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5)),
-                if (address.isNotEmpty) Text(address, style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary)),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Simple "map grid" texture – cheap to paint, no map SDK needed yet.
-class _GridPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = AppColors.navy.withValues(alpha: 0.06)
-      ..strokeWidth = 1;
-
-    const step = 24.0;
-    for (var x = 0.0; x < size.width; x += step) {
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
-    }
-    for (var y = 0.0; y < size.height; y += step) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _GridPainter oldDelegate) => false;
-}
-
 class _ContactTile extends StatelessWidget {
-  const _ContactTile({required this.icon, required this.title, required this.value});
+  const _ContactTile({
+    required this.icon,
+    required this.title,
+    required this.value,
+    this.onTap,
+  });
 
   final IconData icon;
   final String title;
   final String value;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return AppCard(
+      onTap: onTap,
       padding: const EdgeInsets.all(AppSpacing.md),
       child: Row(
         children: [
@@ -552,6 +533,12 @@ class _ContactTile extends StatelessWidget {
               ],
             ),
           ),
+          if (onTap != null)
+            const Icon(
+              Icons.open_in_new_rounded,
+              size: 18,
+              color: AppColors.purple,
+            ),
         ],
       ),
     );

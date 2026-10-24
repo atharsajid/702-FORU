@@ -23,7 +23,7 @@ class SignUpRoleScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              BrandBanner(onTap: (){}),
+              const BrandBanner(),
               const SizedBox(height: AppSpacing.lg),
               Text('How will you use 702FORU?', textAlign: TextAlign.center, style: Theme.of(context).textTheme.headlineLarge),
               const SizedBox(height: AppSpacing.sm),
@@ -62,15 +62,22 @@ class SignUpRoleScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: AppSpacing.lg),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              Wrap(
+                alignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   Text('Already registered? ', style: Theme.of(context).textTheme.bodyMedium),
-                  GestureDetector(
-                    onTap: () => Navigator.of(context).pushNamed(AppRoutes.login),
+                  TextButton(
+                    onPressed: () =>
+                        Navigator.of(context).pushNamed(AppRoutes.login),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
                     child: const Text(
                       'Sign in',
-                      style: TextStyle(color: AppColors.purple, fontWeight: FontWeight.w700),
+                      style: TextStyle(fontWeight: FontWeight.w700),
                     ),
                   ),
                 ],

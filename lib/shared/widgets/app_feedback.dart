@@ -255,24 +255,3 @@ class AppSectionHeader extends StatelessWidget {
     );
   }
 }
-
-/// `────  Or  ────` divider used on auth screens.
-class AppOrDivider extends StatelessWidget {
-  const AppOrDivider({super.key, this.label = 'Or'});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const Expanded(child: Divider()),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-          child: Text(label, style: Theme.of(context).textTheme.bodySmall),
-        ),
-        const Expanded(child: Divider()),
-      ],
-    );
-  }
-}

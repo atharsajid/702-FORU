@@ -24,13 +24,16 @@ import '../../../offers/presentation/providers/offers_providers.dart';
 class HomeTab extends ConsumerWidget {
   const HomeTab({super.key});
 
-  /// Static headline items – replaced by a real RSS feed later.
+  /// Ticker copy. Real headlines replace this once the RSS feed is wired up;
+  /// until then it only states things that are true of the catalogue, rather
+  /// than inventing traffic and weather reports.
   static const List<String> _rssItems = [
-    'Las Vegas traffic flowing smoothly on I-15',
-    'Sunny all week — highs around 78°F',
-    'New businesses added to 702FORU today',
-    'Free Things To Do: updated weekly',
+    '12 categories, from Food & Drink to Free Things To Do',
+    '10 free coupons with every visitor account',
+    '8 free spots verified this month',
+    'New Spotlight partners added every week',
   ];
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(

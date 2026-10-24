@@ -11,6 +11,7 @@ class Offer {
     this.ctaLabel = 'Explore Now',
     this.businessId,
     this.categoryId,
+    this.route,
     this.expiresAt,
     this.isActive = true,
     this.isFeatured = false,
@@ -25,6 +26,14 @@ class Offer {
   /// Optional link to a business / category so "Explore Now" has a target.
   final String? businessId;
   final String? categoryId;
+
+  /// Optional app route for offers that are not tied to a listing – the
+  /// advertising page or the sign-up flow, for example.
+  final String? route;
+
+  /// Whether tapping this offer leads somewhere.
+  bool get hasTarget =>
+      businessId != null || categoryId != null || route != null;
 
   final DateTime? expiresAt;
   final bool isActive;
@@ -43,6 +52,7 @@ class Offer {
         'ctaLabel': ctaLabel,
         'businessId': businessId,
         'categoryId': categoryId,
+        'route': route,
         'expiresAt': expiresAt?.millisecondsSinceEpoch,
         'isActive': isActive,
         'isFeatured': isFeatured,
@@ -56,6 +66,7 @@ class Offer {
         ctaLabel: Json.string(map['ctaLabel'], fallback: 'Explore Now'),
         businessId: Json.nullableString(map['businessId']),
         categoryId: Json.nullableString(map['categoryId']),
+        route: Json.nullableString(map['route']),
         expiresAt: Json.nullableDateTime(map['expiresAt']),
         isActive: Json.toBool(map['isActive'], fallback: true),
         isFeatured: Json.toBool(map['isFeatured']),

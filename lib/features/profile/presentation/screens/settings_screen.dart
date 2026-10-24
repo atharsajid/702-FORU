@@ -113,7 +113,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             padding: EdgeInsets.zero,
             child: SwitchListTile(
               value: user?.marketingOptIn ?? false,
-              activeColor: AppColors.purple,
+              activeThumbColor: AppColors.purple,
               title: const Text('Promotional emails & texts'),
               subtitle: const Text('Exclusive offers and 702FORU updates'),
               onChanged: user == null
@@ -213,7 +213,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           const SizedBox(height: AppSpacing.xxl),
           Center(
             child: Text(
-              '702FORU • v1.0.0 (local preview)',
+              '702FORU • Version 1.0.0',
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ),

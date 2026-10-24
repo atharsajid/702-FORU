@@ -26,17 +26,26 @@ import 'package:for_you/features/attractions/presentation/screens/free_things_sc
 import 'package:for_you/features/auth/domain/entities/app_user.dart';
 import 'package:for_you/features/auth/presentation/providers/business_signup_draft.dart';
 import 'package:for_you/features/auth/presentation/screens/how_it_works_screen.dart';
+import 'package:for_you/features/auth/presentation/screens/login_screen.dart';
 import 'package:for_you/features/auth/presentation/screens/signup_ads_screen.dart';
 import 'package:for_you/features/auth/presentation/screens/signup_enrollment_screen.dart';
 import 'package:for_you/features/auth/presentation/screens/signup_plan_screen.dart';
 import 'package:for_you/features/catalog/domain/entities/business.dart';
+import 'package:for_you/features/catalog/domain/entities/category.dart';
+import 'package:for_you/features/catalog/domain/entities/coupon.dart';
 import 'package:for_you/features/catalog/domain/entities/coupon_quota.dart';
+import 'package:for_you/features/catalog/domain/entities/review.dart';
+import 'package:for_you/features/catalog/presentation/providers/catalog_providers.dart';
+import 'package:for_you/features/catalog/presentation/screens/business_screen.dart';
+import 'package:for_you/features/catalog/presentation/screens/category_screen.dart';
 import 'package:for_you/features/catalog/presentation/widgets/coupon_access_sheet.dart';
 import 'package:for_you/features/auth/presentation/providers/auth_providers.dart';
 import 'package:for_you/features/offers/presentation/screens/spotlight_info_screen.dart';
 import 'package:for_you/features/offers/domain/entities/featured_spotlight.dart';
 import 'package:for_you/features/offers/domain/entities/offer.dart';
 import 'package:for_you/shared/widgets/app_button.dart';
+import 'package:for_you/shared/widgets/category_sphere.dart';
+import 'package:for_you/shared/widgets/map_preview_card.dart';
 import 'package:for_you/shared/widgets/promo_banners.dart';
 import 'package:for_you/shared/widgets/app_network_image.dart';
 
@@ -804,6 +813,213 @@ void main() {
         find.widgetWithText(AppButton, 'Activate my listing'),
       );
       expect(activate.enabled, isFalse);
+    });
+  });
+
+  group('Final polish', () {
+    test('every seeded offer has a working destination', () {
+      for (final offer in LocalSeed.offers()) {
+        expect(
+          offer.hasTarget,
+          isTrue,
+          reason: '${offer.id} would land on a dead end',
+        );
+        expect(offer.ctaLabel, isNotEmpty, reason: offer.id);
+      }
+    });
+
+    test('an offer route survives a map round-trip', () {
+      final offer = LocalSeed.offers().firstWhere(
+        (offer) => offer.route != null,
+      );
+      expect(Offer.fromMap(offer.toMap()).route, offer.route);
+    });
+
+    testWidgets('compact brand banner honours its height and is decorative', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: SizedBox(
+              width: 400,
+              child: BrandBanner(),
+            ),
+          ),
+        ),
+      );
+
+      expect(tester.getSize(find.byType(BrandBanner)).height, 96);
+      expect(tester.widget<InkWell>(find.byType(InkWell)).onTap, isNull);
+    });
+
+    testWidgets('brand banner is tappable only when it leads somewhere', (
+      tester,
+    ) async {
+      var taps = 0;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: BrandBanner(),
+          ),
+        ),
+      );
+
+      await tester.tap(find.byType(BrandBanner));
+      expect(taps, 1);
+    });
+
+    testWidgets('login has no placeholder social sign-in buttons', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        const ProviderScope(child: MaterialApp(home: LoginScreen())),
+      );
+      await tester.pump();
+
+      expect(find.text('Google'), findsNothing);
+      expect(find.text('Facebook'), findsNothing);
+      expect(find.textContaining('available soon'), findsNothing);
+      expect(find.text('Forgot password?'), findsOneWidget);
+    });
+
+    testWidgets('category spheres keep their grid tight on a desktop width', (
+      tester,
+    ) async {
+      tester.view.devicePixelRatio = 1.0;
+      tester.view.physicalSize = const Size(1280, 900);
+      addTearDown(tester.view.reset);
+
+      final categories = [
+        for (var i = 0; i < 6; i++)
+          Category(
+            id: 'category-$i',
+            name: 'Category with a longer name $i',
+            imageUrl: '',
+            sortOrder: i,
+          ),
+      ];
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: CategorySphereGrid(
+                categories: categories,
+                onCategoryTap: (_) {},
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(tester.takeException(), isNull);
+      final grid = tester.widget<GridView>(find.byType(GridView));
+      final delegate =
+          grid.gridDelegate as SliverGridDelegateWithFixedCrossAxisCount;
+      expect(delegate.crossAxisCount, 5);
+      expect(delegate.mainAxisExtent, lessThan(260));
+    });
+
+    testWidgets('business page shows contact actions and a map preview', (
+      tester,
+    ) async {
+      final business = Business(
+        id: 'burger-house',
+        name: 'Burger House',
+        categoryId: 'food-drink',
+        rating: 4.4,
+        reviewCount: 512,
+        address: '77 Flavor Road, Las Vegas, NV',
+        phone: '+1 702 111 2233',
+        website: 'https://burgerhouse.com',
+        description: 'The best burgers in town.',
+        latitude: 36.1699,
+        longitude: -115.1398,
+        createdAt: DateTime(2026, 1, 1),
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            businessByIdProvider(
+              business.id,
+            ).overrideWith((ref) async => business),
+            couponsForBusinessProvider(
+              business.id,
+            ).overrideWith((ref) async => const <Coupon>[]),
+            reviewsProvider(
+              business.id,
+            ).overrideWith((ref) async => const <Review>[]),
+            isFavoriteProvider(business.id).overrideWithValue(false),
+            currentUserProvider.overrideWithValue(null),
+          ],
+          child: MaterialApp(
+            home: BusinessScreen(businessId: business.id),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(tester.takeException(), isNull);
+
+      final scrollable = find.byType(Scrollable).first;
+      await tester.scrollUntilVisible(
+        find.byType(MapPreviewCard),
+        300,
+        scrollable: scrollable,
+      );
+      expect(find.byType(MapPreviewCard), findsOneWidget);
+
+      await tester.scrollUntilVisible(
+        find.text('Contact'),
+        300,
+        scrollable: scrollable,
+      );
+      await tester.pump();
+
+      expect(find.text('Contact'), findsOneWidget);
+      expect(find.text('+1 702 111 2233'), findsOneWidget);
+      expect(find.text('burgerhouse.com'), findsOneWidget);
+      expect(find.textContaining('coming soon'), findsNothing);
+    });
+
+    testWidgets('category business grid fits a desktop width', (tester) async {
+      tester.view.devicePixelRatio = 1.0;
+      tester.view.physicalSize = const Size(1280, 900);
+      addTearDown(tester.view.reset);
+
+      final category = LocalSeed.categories[1];
+      final businesses = [
+        for (var i = 0; i < 4; i++)
+          Business(
+            id: 'business-$i',
+            name: 'A business with a name long enough to wrap $i',
+            categoryId: category.id,
+            rating: 4.8,
+            reviewCount: 1234,
+            address: '1 Long Street, Las Vegas, NV',
+            createdAt: DateTime(2026, 1, 1),
+          ),
+      ];
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            businessesByCategoryProvider(
+              category.id,
+            ).overrideWith((ref) async => businesses),
+          ],
+          child: MaterialApp(home: CategoryScreen(category: category)),
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(tester.takeException(), isNull);
+      expect(find.text('Businesses in ${category.name}'), findsOneWidget);
     });
   });
 

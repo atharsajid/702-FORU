@@ -180,7 +180,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       padding: EdgeInsets.zero,
                       child: SwitchListTile(
                         value: _marketingOptIn,
-                        activeColor: AppColors.purple,
+                        activeThumbColor: AppColors.purple,
                         onChanged: (value) =>
                             setState(() => _marketingOptIn = value),
                         title: const Text('Promotional emails & texts'),

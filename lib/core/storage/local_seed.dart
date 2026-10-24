@@ -5,6 +5,7 @@ import '../../features/catalog/domain/entities/category.dart';
 import '../../features/catalog/domain/entities/coupon.dart';
 import '../../features/notifications/domain/entities/app_notification.dart';
 import '../../features/offers/domain/entities/offer.dart';
+import '../router/app_routes.dart';
 import 'hive_service.dart';
 
 /// Populates the local database the first time the app runs (or after the seed
@@ -14,7 +15,7 @@ class LocalSeed {
   const LocalSeed._();
 
   /// Bump to force re-seeding on next launch.
-  static const int version = 2;
+  static const int version = 4;
 
   /// Seed rows that were removed from the catalogue. Deleting them on the next
   /// launch replaces the old list without touching anything the user created.
@@ -327,6 +328,36 @@ class LocalSeed {
   ];
 
   // ── Businesses ─────────────────────────────────────────────────────────
+  /// Where each demo listing actually is in the valley.
+  ///
+  /// Without this every business shared the city-centre default, so every
+  /// listing page showed the same "0.1 mi from the Strip" map label. A map of
+  /// the valley with one pin is indistinguishable from placeholder data.
+  static const Map<String, (double, double)> _locations = {
+    'sunset-art-gallery': (36.1553, -115.1480),
+    'creative-minds-studio': (36.1260, -115.1700),
+    'burger-house': (36.1147, -115.1720),
+    'tasty-pizza': (36.1450, -115.1570),
+    'neon-lounge': (36.1020, -115.1740),
+    'golden-stage': (36.1210, -115.1690),
+    'pure-yoga-studio': (36.1700, -115.3100),
+    'healthy-life-clinic': (36.0910, -115.1900),
+    'fashion-zone': (36.0900, -115.1780),
+    'tech-world': (36.1480, -115.3340),
+    'red-rock-tours': (36.1350, -115.4300),
+    'lake-mead-kayaks': (36.0170, -114.8000),
+    'adventure-playhouse': (36.0740, -115.2900),
+    'little-chefs-lab': (36.1360, -115.2200),
+    'ironpeak-gym': (36.0650, -115.2400),
+    'court-side-club': (36.1080, -115.3200),
+    'swiftfix-handyman': (36.1699, -115.1398),
+    'bright-clean-co': (36.1900, -115.2400),
+    'skyline-heli-tours': (35.9980, -115.0700),
+    'desert-stargazing': (36.3000, -115.5000),
+    'glow-salon': (36.1400, -115.1800),
+    'handy-home-help': (36.1600, -115.2000),
+  };
+
   static List<Business> _businesses() {
     final now = DateTime.now();
     Business b({
@@ -344,10 +375,11 @@ class LocalSeed {
       required List<String> services,
       List<String> gallery = const [],
       bool sponsored = false,
-      double lat = 36.1699,
-      double lng = -115.1398,
+      double? lat,
+      double? lng,
       String? owner,
     }) {
+      final location = _locations[id];
       return Business(
         id: id,
         name: name,
@@ -364,8 +396,8 @@ class LocalSeed {
         gallery: gallery.isEmpty ? [cover] : gallery,
         isSponsored: sponsored,
         trackingCode: '702-4U-${id.toUpperCase().replaceAll('-', '').substring(0, 4)}',
-        latitude: lat,
-        longitude: lng,
+        latitude: lat ?? location?.$1 ?? 36.1699,
+        longitude: lng ?? location?.$2 ?? -115.1398,
         ownerId: owner,
         createdAt: now.subtract(const Duration(days: 120)),
       );
@@ -773,15 +805,18 @@ class LocalSeed {
   }
 
   // ── Offers ─────────────────────────────────────────────────────────────
-  static List<Offer> _offers() {
+  /// Every seeded offer, in display order. Exposed so tests can assert that no
+  /// offer ships without a working destination.
+  static List<Offer> offers() {
     final expiry = DateTime.now().add(const Duration(days: 30));
     return [
       Offer(
         id: 'o-win-gifts',
         title: 'Win Gifts & Discounts',
-        subtitle: 'Exclusive 702FORU Offer',
+        subtitle: 'Join free and enter the monthly draw',
         imageUrl: 'https://images.pexels.com/photos/3184407/pexels-photo-3184407.jpeg',
-        ctaLabel: 'Explore Now',
+        ctaLabel: 'Join free',
+        route: AppRoutes.signUpUser,
         expiresAt: expiry,
       ),
       Offer(
@@ -790,6 +825,7 @@ class LocalSeed {
         subtitle: 'Reach thousands of Vegas locals',
         imageUrl: 'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg',
         ctaLabel: 'Learn More',
+        route: AppRoutes.spotlightInfo,
         expiresAt: expiry,
       ),
       Offer(
@@ -936,7 +972,7 @@ class LocalSeed {
 
   static Future<void> _seedOffers() async {
     final box = HiveService.box(HiveBoxes.offers);
-    for (final offer in _offers()) {
+    for (final offer in offers()) {
       await box.put(offer.id, offer.toMap());
     }
   }

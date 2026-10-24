@@ -46,33 +46,37 @@ class BusinessCard extends StatelessWidget {
                 ),
             ],
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.md,
-              AppSpacing.sm,
-              AppSpacing.md,
-              AppSpacing.md,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  business.name,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    height: 1.25,
+          // Fills whatever height the grid gives the card, so a one-line name
+          // and a two-line name both look balanced instead of leaving a gap.
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.md,
+                AppSpacing.sm,
+                AppSpacing.md,
+                AppSpacing.md,
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    business.name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      height: 1.25,
+                    ),
                   ),
-                ),
-                const SizedBox(height: AppSpacing.xs),
-                AppRatingBadge(
-                  rating: business.rating,
-                  reviewCount: business.reviewCount,
-                  compact: true,
-                ),
-              ],
+                  AppRatingBadge(
+                    rating: business.rating,
+                    reviewCount: business.reviewCount,
+                    compact: true,
+                  ),
+                ],
+              ),
             ),
           ),
         ],

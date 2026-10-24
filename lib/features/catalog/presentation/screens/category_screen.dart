@@ -38,15 +38,14 @@ class CategoryScreen extends ConsumerWidget {
           slivers: [
             const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
 
-            // 702FORU logo keeps the brand present on every category page.
+            // Slim 702FORU brand strip keeps the brand present on every
+            // category page without pushing the first business far down.
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.page),
+                padding: EdgeInsets.symmetric(horizontal: context.pagePadding),
                 child: BrandBanner(
                   onTap: () =>
                       Navigator.of(context).pushNamed(AppRoutes.about),
-                  height: 112,
-                  compact: true,
                 ),
               ),
             ),
@@ -79,7 +78,6 @@ class CategoryScreen extends ConsumerWidget {
             SliverToBoxAdapter(
               child: AppSectionHeader(
                 title: 'Businesses in ${category.name}',
-                subtitle: category.description,
               ),
             ),
 
@@ -103,27 +101,45 @@ class CategoryScreen extends ConsumerWidget {
                       );
                     }
 
-                    final columns =
-                        context.gridColumns(mobile: 2, tablet: 3, desktop: 4);
+                    // The card's height is derived from its width, so the
+                    // grid stays proportional from phone to desktop instead
+                    // of clipping a two-line name in a fixed 208pt tile.
+                    return LayoutBuilder(
+                      builder: (context, constraints) {
+                        const spacing = AppSpacing.md;
+                        final columns = context.gridColumns(
+                          mobile: 2,
+                          tablet: 3,
+                          desktop: 4,
+                        );
+                        final cardWidth =
+                            (constraints.maxWidth - spacing * (columns - 1)) /
+                                columns;
+                        final imageHeight = cardWidth * 10 / 16;
+                        final textScale =
+                            MediaQuery.textScalerOf(context).scale(14) / 14;
+                        final textBlock = 8 + 35 * textScale + 4 + 18 + 12;
 
-                    return GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: list.length,
-                      gridDelegate:
-                          SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: columns,
-                        crossAxisSpacing: AppSpacing.md,
-                        mainAxisSpacing: AppSpacing.md,
-                        mainAxisExtent: 208,
-                      ),
-                      itemBuilder: (context, index) => BusinessCard(
-                        business: list[index],
-                        onTap: () => Navigator.of(context).pushNamed(
-                          AppRoutes.business,
-                          arguments: list[index].id,
-                        ),
-                      ),
+                        return GridView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: list.length,
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: columns,
+                            crossAxisSpacing: spacing,
+                            mainAxisSpacing: spacing,
+                            mainAxisExtent: imageHeight + textBlock + 4,
+                          ),
+                          itemBuilder: (context, index) => BusinessCard(
+                            business: list[index],
+                            onTap: () => Navigator.of(context).pushNamed(
+                              AppRoutes.business,
+                              arguments: list[index].id,
+                            ),
+                          ),
+                        );
+                      },
                     );
                   },
                 ),

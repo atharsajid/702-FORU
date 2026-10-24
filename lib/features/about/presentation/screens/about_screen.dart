@@ -38,7 +38,7 @@ class AboutScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // ── Hero ─────────────────────────────────────────────────────
-            BrandBanner(onTap: (){}),
+            const BrandBanner(),
 
             const SizedBox(height: AppSpacing.xxl),
 

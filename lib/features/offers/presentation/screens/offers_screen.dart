@@ -5,7 +5,6 @@ import '../../../../core/router/app_routes.dart';
 import '../../../../core/router/category_navigation.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
-import '../../../../core/utils/context_extensions.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../../shared/widgets/app_card.dart';
 import '../../../../shared/widgets/app_feedback.dart';
@@ -56,7 +55,9 @@ class OffersScreen extends ConsumerWidget {
                         const SizedBox(height: AppSpacing.md),
                     itemBuilder: (context, index) => _OfferCard(
                       offer: list[index],
-                      onTap: () => _open(context, ref, list[index]),
+                      onTap: list[index].hasTarget
+                          ? () => _open(context, ref, list[index])
+                          : null,
                     ),
                   ),
                 ),
@@ -95,17 +96,18 @@ class OffersScreen extends ConsumerWidget {
       }
     }
 
-    if (context.mounted) {
-      context.showSnack('This offer is available in the app soon.');
+    final route = offer.route;
+    if (route != null) {
+      Navigator.of(context).pushNamed(route);
     }
   }
 }
 
 class _OfferCard extends StatelessWidget {
-  const _OfferCard({required this.offer, required this.onTap});
+  const _OfferCard({required this.offer, this.onTap});
 
   final Offer offer;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -155,25 +157,27 @@ class _OfferCard extends StatelessWidget {
                   offer.title,
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
-                const SizedBox(height: AppSpacing.sm),
-                Row(
-                  children: [
-                    Text(
-                      offer.ctaLabel,
-                      style: const TextStyle(
-                        fontSize: 13.5,
-                        fontWeight: FontWeight.w700,
+                if (offer.hasTarget) ...[
+                  const SizedBox(height: AppSpacing.sm),
+                  Row(
+                    children: [
+                      Text(
+                        offer.ctaLabel,
+                        style: const TextStyle(
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.purple,
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.xs),
+                      const Icon(
+                        Icons.arrow_forward,
+                        size: 16,
                         color: AppColors.purple,
                       ),
-                    ),
-                    const SizedBox(width: AppSpacing.xs),
-                    const Icon(
-                      Icons.arrow_forward,
-                      size: 16,
-                      color: AppColors.purple,
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),

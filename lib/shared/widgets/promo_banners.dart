@@ -6,45 +6,37 @@ import '../../core/utils/formatters.dart';
 import 'app_button.dart';
 import 'app_network_image.dart';
 
-/// Brand card at the top of Home: the 702FORU logo, untouched, on a navy
-/// surface with a violet glow.
+/// Brand card: the animated 702FORU logo on a navy surface.
 ///
-/// The logo is a square 1254×1254 asset, so it is painted with
-/// [BoxFit.contain] inside a fixed-height card. Stretching it to fill a wide
-/// banner (the previous behaviour) distorted the wordmark on every device.
-/// Tapping it opens "About 702FORU".
+/// The animation is a 16:9 asset, so the default card keeps that aspect ratio
+/// and fills it exactly – no cropping, no distortion. Pass [compact] for the
+/// slim brand strip used on secondary screens: the card then takes [height]
+/// and letterboxes the logo instead of growing to a full-width hero.
+///
+/// [onTap] is optional: the logo is decoration on auth and info screens, and
+/// only becomes a button where it leads somewhere (Home, category pages).
 class BrandBanner extends StatelessWidget {
-  const BrandBanner({super.key, required this.onTap, this.imageAsset = 'assets/animated_logo.gif', this.height = 250, this.compact = false});
+  const BrandBanner({super.key, this.onTap, this.imageAsset = 'assets/animated_logo.gif'});
 
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final String imageAsset;
-
-  /// Height of the card. The logo scales to fit inside it.
-  final double height;
-
-  /// Smaller padding used on category pages.
-  final bool compact;
 
   @override
   Widget build(BuildContext context) {
-    return AspectRatio(
-      aspectRatio: 16 / 9,
-      child: Material(
-        color: AppColors.navy,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onTap,
-          child: DecoratedBox(
-            decoration: const BoxDecoration(gradient: AppColors.navyGradient),
-            child: Stack(
-              fit: StackFit.expand,
-              children: [Image.asset(imageAsset, fit: BoxFit.fill, filterQuality: FilterQuality.medium, gaplessPlayback: true)],
-            ),
-          ),
+    final banner = Material(
+      color: AppColors.navy,
+      borderRadius: BorderRadius.circular(AppRadius.lg),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: DecoratedBox(
+          decoration: const BoxDecoration(gradient: AppColors.navyGradient),
+          child: Image.asset(imageAsset, fit: BoxFit.fill, filterQuality: FilterQuality.medium, gaplessPlayback: true),
         ),
       ),
     );
+
+    return AspectRatio(aspectRatio: 16 / 9, child: banner);
   }
 }
 

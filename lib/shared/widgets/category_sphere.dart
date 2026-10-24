@@ -24,23 +24,20 @@ class CategorySphere extends StatelessWidget {
   final Category category;
   final VoidCallback onTap;
 
-  /// Rim thickness as a share of the sphere's diameter.
-  static const double _rimRatio = 0.085;
+  /// Largest the sphere ever grows on tablets and desktop.
+  static const double maxDiameter = 152;
 
-  /// Halo blurs, as a share of the sphere's diameter.
-  static const double _glowBlur = 0.10;
-  static const double _bloomBlur = 10;
+  /// Halo blur, as a share of the sphere's diameter.
+  static const double _glowBlurRatio = 0.14;
+
+  /// Where the photo starts inside the ring, as a share of the diameter.
+  static const double photoInsetRatio = 0.1136;
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final sphereSize = constraints.maxWidth * 0.68;
-        // Never thinner than 3pt, and never so thick that the photo vanishes.
-        final rimWidth = math.min(math.max(sphereSize * _rimRatio, 3.0), sphereSize * 0.225);
-        // Rim thickness and where the photo starts, both in sphere radii.
-        final rim = rimWidth * 2 / sphereSize;
-        final inner = 1 - rim;
+        final diameter = math.min(constraints.maxWidth, maxDiameter);
 
         return InkWell(
           onTap: onTap,
@@ -49,23 +46,30 @@ class CategorySphere extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               SizedBox(
-                width: 110,
-                height: 110,
+                width: diameter,
+                height: diameter,
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    boxShadow: [BoxShadow(color: AppColors.sphereGlow.withAlpha(75), blurRadius: 15, spreadRadius: 0, offset: Offset(-1, 2))],
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.sphereGlow.withValues(alpha: 0.29),
+                        blurRadius: diameter * _glowBlurRatio,
+                        spreadRadius: 0,
+                        offset: const Offset(-1, 2),
+                      ),
+                    ],
                   ),
                   child: Stack(
                     fit: StackFit.expand,
                     alignment: Alignment.center,
                     children: [
-                      Image.asset("assets/ring_image.png", fit: BoxFit.contain),
+                      Image.asset('assets/ring_image.png', fit: BoxFit.contain),
 
                       // The rim is painted *under* an inset photo, so it reads as
                       // a raised ring the picture sits down inside of.
                       Padding(
-                        padding: EdgeInsets.all(12.5),
+                        padding: EdgeInsets.all(diameter * photoInsetRatio),
                         child: ClipOval(
                           child: Stack(
                             fit: StackFit.expand,
@@ -96,14 +100,12 @@ class CategorySphere extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: AppSpacing.sm),
-              Expanded(
-                child: Text(
-                  category.name,
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, height: 1.25, color: AppColors.textPrimary),
-                ),
+              Text(
+                category.name,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, height: 1.25, color: AppColors.textPrimary),
               ),
             ],
           ),
@@ -125,24 +127,44 @@ class CategorySphereGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final columns = context.gridColumns(mobile: 3, tablet: 4, desktop: 5);
+    const spacing = AppSpacing.md;
+    final gridPadding =
+        padding ?? EdgeInsets.symmetric(horizontal: context.pagePadding);
 
-    return GridView.builder(
-      shrinkWrap: shrinkWrap,
-      physics: shrinkWrap ? const NeverScrollableScrollPhysics() : const BouncingScrollPhysics(),
-      // A shrink-wrapped grid never scrolls, so nothing can spill: letting the
-      // halo paint past its bounds keeps the glow soft at the outer edges.
-      clipBehavior: shrinkWrap ? Clip.none : Clip.hardEdge,
-      padding: padding ?? EdgeInsets.symmetric(horizontal: context.pagePadding),
-      itemCount: categories.length,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: columns,
-        crossAxisSpacing: AppSpacing.md,
-        mainAxisSpacing: AppSpacing.lg,
-        childAspectRatio: context.responsive(mobile: 0.74, tablet: 0.8),
-      ),
-      itemBuilder: (context, index) {
-        final category = categories[index];
-        return CategorySphere(category: category, onTap: () => onCategoryTap(category));
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // The tile hugs the sphere plus its two-line label, so the grid stays
+        // tight at every width instead of reserving empty space on tablets.
+        final horizontalInset = gridPadding is EdgeInsets
+            ? gridPadding.left + gridPadding.right
+            : 0.0;
+        final tileWidth =
+            (constraints.maxWidth - horizontalInset - spacing * (columns - 1)) /
+                columns;
+        final diameter = math.min(tileWidth, CategorySphere.maxDiameter);
+        final labelHeight =
+            MediaQuery.textScalerOf(context).scale(12) * 1.25 * 2 + 4;
+
+        return GridView.builder(
+          shrinkWrap: shrinkWrap,
+          physics:
+              shrinkWrap ? const NeverScrollableScrollPhysics() : const BouncingScrollPhysics(),
+          // A shrink-wrapped grid never scrolls, so nothing can spill: letting
+          // the halo paint past its bounds keeps the glow soft at the edges.
+          clipBehavior: shrinkWrap ? Clip.none : Clip.hardEdge,
+          padding: gridPadding,
+          itemCount: categories.length,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: columns,
+            crossAxisSpacing: spacing,
+            mainAxisSpacing: AppSpacing.lg,
+            mainAxisExtent: diameter + AppSpacing.sm + labelHeight,
+          ),
+          itemBuilder: (context, index) {
+            final category = categories[index];
+            return CategorySphere(category: category, onTap: () => onCategoryTap(category));
+          },
+        );
       },
     );
   }

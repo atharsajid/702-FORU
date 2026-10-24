@@ -353,7 +353,7 @@ class _CouponSheetState extends ConsumerState<_CouponSheet> {
               ),
               const SizedBox(height: AppSpacing.md),
               DropdownButtonFormField<int>(
-                value: _validDays,
+                initialValue: _validDays,
                 decoration: const InputDecoration(labelText: 'Valid for'),
                 items: const [
                   DropdownMenuItem(value: 7, child: Text('7 days')),
