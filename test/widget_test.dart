@@ -8,6 +8,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:signature/signature.dart';
 
 import 'package:for_you/core/config/pricing.dart';
 import 'package:for_you/core/error/error_handler.dart';
@@ -722,6 +723,61 @@ void main() {
         find.text('Your business information is missing'),
         findsOneWidget,
       );
+    });
+
+    testWidgets('signature pad gates activation and can be cleared', (
+      tester,
+    ) async {
+      await tester.binding.setSurfaceSize(const Size(420, 4000));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            businessSignupDraftProvider
+                .overrideWith(_FilledDraftController.new),
+          ],
+          child: const MaterialApp(home: SignupEnrollmentScreen()),
+        ),
+      );
+      await tester.pump();
+
+      final activate = find.widgetWithText(AppButton, 'Activate my listing');
+      expect(tester.widget<AppButton>(activate).enabled, isFalse);
+      expect(find.text('Sign here'), findsOneWidget);
+
+      final boxes = find.byType(Checkbox);
+      expect(boxes, findsNWidgets(4));
+      for (var i = 0; i < 4; i++) {
+        await tester.ensureVisible(boxes.at(i));
+        await tester.tap(boxes.at(i));
+        await tester.pump();
+      }
+
+      expect(
+        tester.widget<AppButton>(activate).enabled,
+        isFalse,
+        reason: 'all acknowledgments without a signature must stay blocked',
+      );
+
+      await tester.ensureVisible(find.byType(Signature));
+      await tester.drag(find.byType(Signature), const Offset(60, 30));
+      await tester.pump();
+
+      expect(find.text('Signature added'), findsOneWidget);
+      expect(tester.widget<AppButton>(activate).enabled, isTrue);
+
+      await tester.tap(find.text('Clear'));
+      await tester.pump();
+
+      expect(find.text('Sign here'), findsOneWidget);
+      expect(tester.widget<AppButton>(activate).enabled, isFalse);
+
+      // The user can sign again after clearing.
+      await tester.drag(find.byType(Signature), const Offset(-40, 20));
+      await tester.pump();
+      expect(find.text('Signature added'), findsOneWidget);
+      expect(tester.widget<AppButton>(activate).enabled, isTrue);
     });
 
     testWidgets('enrollment shows the trial, price and required agreements', (

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:signature/signature.dart';
 
 import '../../../../core/config/pricing.dart';
 import '../../../../core/router/app_routes.dart';
@@ -28,29 +29,45 @@ class SignupEnrollmentScreen extends ConsumerStatefulWidget {
 
 class _SignupEnrollmentScreenState
     extends ConsumerState<SignupEnrollmentScreen> {
-  late final TextEditingController _signature;
+  late final SignatureController _signaturePad;
   late final TextEditingController _title;
   final DateTime _today = DateTime.now();
 
   final List<bool> _acknowledged = List<bool>.filled(4, false);
   bool _isBusy = false;
+  bool _hasSignature = false;
 
   @override
   void initState() {
     super.initState();
     final draft = ref.read(businessSignupDraftProvider);
-    _signature = TextEditingController(text: draft.contactName);
     _title = TextEditingController(text: draft.contactTitle);
+    _signaturePad = SignatureController(
+      penColor: Colors.black,
+      penStrokeWidth: 2.6,
+      strokeCap: StrokeCap.round,
+      strokeJoin: StrokeJoin.round,
+    )..addListener(_syncSignatureState);
   }
 
   @override
   void dispose() {
-    _signature.dispose();
+    _signaturePad
+      ..removeListener(_syncSignatureState)
+      ..dispose();
     _title.dispose();
     super.dispose();
   }
 
   bool get _allAcknowledged => _acknowledged.every((value) => value);
+
+  /// The pad notifies on every point; only rebuild when the empty/filled
+  /// state actually changes.
+  void _syncSignatureState() {
+    final hasSignature = _signaturePad.isNotEmpty;
+    if (hasSignature == _hasSignature || !mounted) return;
+    setState(() => _hasSignature = hasSignature);
+  }
 
   Future<void> _activate() async {
     final draft = ref.read(businessSignupDraftProvider);
@@ -68,7 +85,7 @@ class _SignupEnrollmentScreenState
       );
       return;
     }
-    if (_signature.text.trim().length < 2) {
+    if (_signaturePad.isEmpty) {
       context.showSnack('Please sign the enrollment form.', isError: true);
       return;
     }
@@ -77,7 +94,7 @@ class _SignupEnrollmentScreenState
     setState(() => _isBusy = true);
 
     final result = await ref.read(registerProviderAccountProvider)(
-      fullName: draft.contactName.isEmpty ? _signature.text : draft.contactName,
+      fullName: draft.contactName,
       email: draft.email,
       password: draft.password,
       phone: draft.phone,
@@ -381,13 +398,14 @@ class _SignupEnrollmentScreenState
 
                   const SizedBox(height: AppSpacing.xl),
                   const _SectionLabel('Signature'),
-                  AppTextField(
-                    controller: _signature,
-                    label: 'Authorized representative',
-                    hint: 'Type your full name to sign',
-                    prefixIcon: Icons.draw_outlined,
-                    textInputAction: TextInputAction.next,
-                    isRequired: true,
+                  Text(
+                    draft.contactName.isEmpty
+                        ? 'Authorized representative'
+                        : 'Authorized representative: ${draft.contactName}',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.md),
                   AppTextField(
@@ -396,6 +414,94 @@ class _SignupEnrollmentScreenState
                     hint: 'Owner, manager, …',
                     prefixIcon: Icons.work_outline_rounded,
                     textInputAction: TextInputAction.done,
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+
+                  // ── Signature pad ────────────────────────────────
+                  Container(
+                    clipBehavior: Clip.antiAlias,
+                    decoration: BoxDecoration(
+                      color: AppColors.white,
+                      borderRadius: BorderRadius.circular(AppRadius.md),
+                      border: Border.all(
+                        color: _hasSignature
+                            ? AppColors.purple
+                            : AppColors.greyLight,
+                        width: _hasSignature ? 1.4 : 1,
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(
+                            AppSpacing.md,
+                            AppSpacing.xs,
+                            AppSpacing.sm,
+                            0,
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                _hasSignature
+                                    ? Icons.check_circle_outline_rounded
+                                    : Icons.edit_outlined,
+                                size: 15,
+                                color: _hasSignature
+                                    ? AppColors.success
+                                    : AppColors.textSecondary,
+                              ),
+                              const SizedBox(width: AppSpacing.xs),
+                              Expanded(
+                                child: Text(
+                                  _hasSignature
+                                      ? 'Signature added'
+                                      : 'Sign in the box below',
+                                  style: TextStyle(
+                                    fontSize: 11.5,
+                                    fontWeight: FontWeight.w600,
+                                    color: _hasSignature
+                                        ? AppColors.success
+                                        : AppColors.textSecondary,
+                                  ),
+                                ),
+                              ),
+                              TextButton.icon(
+                                onPressed:
+                                    _hasSignature ? _signaturePad.clear : null,
+                                style: TextButton.styleFrom(
+                                  foregroundColor: AppColors.purple,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: AppSpacing.sm,
+                                  ),
+                                  minimumSize: const Size(0, 34),
+                                ),
+                                icon: const Icon(Icons.refresh_rounded,
+                                    size: 16),
+                                label: const Text('Clear'),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          height: 170,
+                          width: double.infinity,
+                          child: Signature(
+                            controller: _signaturePad,
+                            backgroundColor: AppColors.white,
+                            placeholder: Center(
+                              child: Text(
+                                'Sign here',
+                                style: TextStyle(
+                                  color: AppColors.grey.withValues(alpha: 0.7),
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.md),
                   Container(
@@ -429,7 +535,7 @@ class _SignupEnrollmentScreenState
                     icon: Icons.check_circle_outline_rounded,
                     size: AppButtonSize.large,
                     isLoading: _isBusy,
-                    enabled: _allAcknowledged && !_isBusy,
+                    enabled: _allAcknowledged && _hasSignature && !_isBusy,
                     onPressed: _activate,
                   ),
                   const SizedBox(height: AppSpacing.sm),
