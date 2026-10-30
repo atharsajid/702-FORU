@@ -231,7 +231,7 @@ class _GuestProfile extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(
-              'Save favourites, redeem 10 free coupons and leave reviews for the businesses you love.',
+              'Save your favorite businesses, enjoy 10 free coupons, and share your experiences through reviews.',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium,
             ),

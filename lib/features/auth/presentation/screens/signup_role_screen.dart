@@ -36,9 +36,9 @@ class SignUpRoleScreen extends StatelessWidget {
 
               _RoleCard(
                 icon: Icons.person_outline_rounded,
-                title: 'I am a visitor',
-                description: 'Explore Vegas, save favourites, use coupons and leave reviews.',
-                benefits: const ['Save and bookmark businesses', 'Redeem exclusive coupon codes', 'Leave reviews for any business'],
+                title: "I'm a Visitor",
+                description: 'Discover Las Vegas, save your favorite businesses, enjoy coupons, and share reviews.',
+                benefits: const ['Save your favorite businesses', 'Redeem exclusive coupons', 'Rate and review businesses you\'ve visited'],
                 onTap: () => Navigator.of(context).pushNamed(AppRoutes.signUpUser),
               ),
 
@@ -46,9 +46,9 @@ class SignUpRoleScreen extends StatelessWidget {
 
               _RoleCard(
                 icon: Icons.storefront_outlined,
-                title: 'I am a business',
-                description: 'List your business free for 30 days and reach thousands of locals and visitors.',
-                benefits: const ['30 days free, then \$9.99/month', 'Your own business listing page', 'Optional Spotlight, video and banner ads'],
+                title: 'I\'m a Business',
+                description: 'Promote your business and connect with Las Vegas locals and visitors.',
+                benefits: const ['First 30 days free, then \$9.99/month', 'Your own business listing page', 'Optional spotlight, video, and banner advertising'],
                 highlighted: true,
                 onTap: () => Navigator.of(context).pushNamed(AppRoutes.signUpProvider),
               ),

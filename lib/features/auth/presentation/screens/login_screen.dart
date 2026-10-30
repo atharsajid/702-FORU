@@ -81,7 +81,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     Text('Welcome back', textAlign: TextAlign.center, style: Theme.of(context).textTheme.displayMedium),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
-                      'Sign in to save favourites, redeem coupons and leave reviews.',
+                      'Sign in to save your favorites, redeem coupons, and leave reviews.',
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
@@ -93,7 +93,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         children: [
                           AppTextField(
                             controller: _email,
-                            label: 'Email',
+                            label: 'Email Address',
                             hint: 'you@example.com',
                             prefixIcon: Icons.mail_outline_rounded,
                             keyboardType: TextInputType.emailAddress,
@@ -107,6 +107,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             controller: _password,
                             label: 'Password',
                             isRequired: true,
+                            prefixIcon: Icons.lock,
                             autofillHints: const [AutofillHints.password],
                             validator: Validators.password,
                             onSubmitted: (_) => _submit(),
@@ -135,7 +136,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         children: [
                           const AppTag(label: 'DEMO ACCOUNTS', color: AppColors.purple, textColor: AppColors.white, compact: true),
                           const SizedBox(height: AppSpacing.sm),
-                          Text('Tap a demo account to sign in instantly.', style: Theme.of(context).textTheme.bodySmall),
+                          Text('Select a demo account to sign in instantly.', style: Theme.of(context).textTheme.bodySmall),
                           const SizedBox(height: AppSpacing.sm),
                           _DemoButton(
                             label: 'Visitor',

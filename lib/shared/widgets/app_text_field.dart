@@ -83,6 +83,7 @@ class AppPasswordField extends StatefulWidget {
     this.onSubmitted,
     this.isRequired = false,
     this.autofillHints,
+    this.prefixIcon,
   });
 
   final TextEditingController controller;
@@ -93,6 +94,7 @@ class AppPasswordField extends StatefulWidget {
   final ValueChanged<String>? onSubmitted;
   final bool isRequired;
   final Iterable<String>? autofillHints;
+  final IconData? prefixIcon;
 
   @override
   State<AppPasswordField> createState() => _AppPasswordFieldState();
@@ -113,6 +115,7 @@ class _AppPasswordFieldState extends State<AppPasswordField> {
       onSubmitted: widget.onSubmitted,
       isRequired: widget.isRequired,
       autofillHints: widget.autofillHints,
+      prefixIcon: widget.prefixIcon,
       suffix: IconButton(
         tooltip: _obscured ? 'Show password' : 'Hide password',
         onPressed: () => setState(() => _obscured = !_obscured),

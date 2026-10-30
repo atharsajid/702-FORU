@@ -59,44 +59,41 @@ class AdvertisingProduct {
 const List<AdvertisingProduct> advertisingProducts = [
   AdvertisingProduct(
     id: 'spotlight',
-    name: 'Spotlight placement',
-    tagline: 'Be the featured card at the top of a category.',
+    name: 'Spotlight Placement',
+    tagline: 'Stand out in your category.',
     description:
-        'Your business sits above the standard listings in its category, with '
-        'the Spotlight badge and a rotating home-screen slot.',
+        'Feature your business above standard listings in a selected category, with a Spotlight badge and a rotating placement on the home screen.',
     icon: Icons.workspace_premium_outlined,
     features: [
-      'Top placement on one category page',
-      'Spotlight badge on your listing',
-      'Rotation on the home screen',
+      'Featured placement on one category page',
+      'Spotlight badge on your business listing',
+      'Rotating placement on the home screen',
     ],
   ),
   AdvertisingProduct(
     id: 'video',
-    name: 'Video advertising',
-    tagline: 'Show your business in motion.',
+    name: 'Video Advertising',
+    tagline: 'Showcase your business in action.',
     description:
-        'A short promo video on your listing and in the video rail, with a '
-        'backlink to your 702FORU page.',
+        'Feature a promotional video on your business listing and, where applicable, in the 702ForU video section, with a link to your full listing.',
     icon: Icons.play_circle_outline_rounded,
     features: [
-      'Promo video on your listing page',
-      'Featured in the video placements',
-      'Tap-through to your full listing',
+      'Promotional video on your business listing',
+      'Featured video placement within the app',
+      'Direct link to your business listing',
     ],
   ),
   AdvertisingProduct(
     id: 'premium-banner',
-    name: 'Premium banner',
-    tagline: 'Own the top of the screen.',
+    name: 'Premium Banner Advertising',
+    tagline: 'Give your business additional visibility.',
     description:
-        'A premium banner at the top of the home or category screens, built '
-        'from your own artwork and offer.',
+        'Promote your business with a banner in a designated advertising space within 702ForU.',
     icon: Icons.view_carousel_outlined,
     features: [
-      'Top banner placement',
-      'Your artwork and offer copy',
-      'Direct link to your listing',
+      'Banner placement in an agreed location',
+      'Link to your business listing or website',
+      'Placement duration confirmed before purchase',
     ],
   ),
 ];

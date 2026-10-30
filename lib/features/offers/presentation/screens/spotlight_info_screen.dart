@@ -16,10 +16,10 @@ class SpotlightInfoScreen extends StatelessWidget {
   const SpotlightInfoScreen({super.key});
 
   static const List<String> _basicIncludes = [
-    'Your business in the right 702FORU category',
-    'Name, approved description, contact details and service area',
-    'Website and social links you provide',
-    'Standard listing visibility',
+    'Your business listed in the relevant 702ForU category',
+    'Your business name, approved description, and contact details',
+    'Your website and social media links',
+    'Standard visibility in search results and categories',
   ];
 
   @override
@@ -29,10 +29,7 @@ class SpotlightInfoScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('Advertise')),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
-        padding: EdgeInsets.symmetric(
-          horizontal: context.pagePadding,
-          vertical: AppSpacing.lg,
-        ),
+        padding: EdgeInsets.symmetric(horizontal: context.pagePadding, vertical: AppSpacing.lg),
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 560),
@@ -45,26 +42,13 @@ class SpotlightInfoScreen extends StatelessWidget {
                 // ── Basic listing ──────────────────────────────────────
                 Row(
                   children: [
-                    const Expanded(
-                      child: _SectionTitle('Start with a Basic Listing'),
-                    ),
+                    const Expanded(child: _SectionTitle('Start with a Basic Listing')),
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.sm,
-                        vertical: 3,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.purple.withValues(alpha: 0.10),
-                        borderRadius: BorderRadius.circular(AppRadius.pill),
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 3),
+                      decoration: BoxDecoration(color: AppColors.purple.withValues(alpha: 0.10), borderRadius: BorderRadius.circular(AppRadius.pill)),
                       child: const Text(
                         'START HERE',
-                        style: TextStyle(
-                          fontSize: 9.5,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 0.6,
-                          color: AppColors.purple,
-                        ),
+                        style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.w800, letterSpacing: 0.6, color: AppColors.purple),
                       ),
                     ),
                   ],
@@ -77,21 +61,12 @@ class SpotlightInfoScreen extends StatelessWidget {
                     children: [
                       Text(
                         BusinessListingPricing.trialLabel.toUpperCase(),
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.purple,
-                        ),
+                        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.purple),
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'then ${BusinessListingPricing.monthlyLabel} '
-                        'unless cancelled',
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textSecondary,
-                        ),
+                        "Then ${BusinessListingPricing.monthlyLabel} unless you cancel before your free trial ends.",
+                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
                       ),
                       const SizedBox(height: AppSpacing.md),
                       for (final item in _basicIncludes)
@@ -100,37 +75,21 @@ class SpotlightInfoScreen extends StatelessWidget {
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Icon(
-                                Icons.check_circle_rounded,
-                                size: 16,
-                                color: AppColors.success,
-                              ),
+                              const Icon(Icons.check_circle_rounded, size: 16, color: AppColors.success),
                               const SizedBox(width: AppSpacing.sm),
-                              Expanded(
-                                child: Text(
-                                  item,
-                                  style: const TextStyle(
-                                    fontSize: 13,
-                                    height: 1.35,
-                                  ),
-                                ),
-                              ),
+                              Expanded(child: Text(item, style: const TextStyle(fontSize: 13, height: 1.35))),
                             ],
                           ),
                         ),
                       const SizedBox(height: AppSpacing.md),
                       AppButton(
-                        label: 'Start my free listing',
+                        label: 'Start My Free Listing',
                         icon: Icons.storefront_outlined,
-                        onPressed: () => Navigator.of(context)
-                            .pushNamed(AppRoutes.signUpProvider),
+                        onPressed: () => Navigator.of(context).pushNamed(AppRoutes.signUpProvider),
                       ),
                       const SizedBox(height: AppSpacing.xs),
                       Text(
-                        'A valid payment method is required when the free '
-                        'trial starts. Cancel before day '
-                        '${BusinessListingPricing.trialDays} to avoid the first '
-                        'charge.',
+                        "A valid payment method is required to begin your free trial. You won’t be charged during the 30-day trial. Your subscription will automatically renew at \$9.99 per month after the trial unless you cancel before it ends.",
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
@@ -140,33 +99,21 @@ class SpotlightInfoScreen extends StatelessWidget {
                 const SizedBox(height: AppSpacing.xxl),
 
                 // ── Paid placements ────────────────────────────────────
-                const _SectionTitle('Advertising & placements'),
+                const _SectionTitle('Advertising & Placements'),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
-                  'Add a placement on top of your listing to reach more locals '
-                  'and visitors. Pricing is being finalised, so each placement '
-                  'is quoted before anything is charged.',
+                  'Enhance your Basic Listing with optional advertising opportunities designed to help customers discover your business. Pricing is provided for your approval before any advertising is purchased.',
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 const SizedBox(height: AppSpacing.md),
                 for (final product in advertisingProducts) ...[
-                  _AdvertisingCard(
-                    product: product,
-                    onQuote: () => _showQuote(context, product),
-                  ),
+                  _AdvertisingCard(product: product, onQuote: () => _showQuote(context, product)),
                   const SizedBox(height: AppSpacing.md),
                 ],
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.info_outline_rounded,
-                        size: 14, color: AppColors.textSecondary),
-                    const SizedBox(width: AppSpacing.xs),
-                    Expanded(
-                      child: Text(
-                        BusinessListingPricing.confirmationNote,
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    ),
+                    Expanded(child: Text("All advertising options are optional. Pricing, placement, and duration will be confirmed with you before purchase.", style: Theme.of(context).textTheme.bodySmall)),
                   ],
                 ),
 
@@ -180,15 +127,9 @@ class SpotlightInfoScreen extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          const Icon(Icons.account_balance_wallet_outlined,
-                              size: 20, color: AppColors.purple),
+                          const Icon(Icons.account_balance_wallet_outlined, size: 20, color: AppColors.purple),
                           const SizedBox(width: AppSpacing.sm),
-                          Expanded(
-                            child: Text(
-                              'Your customers, your payments',
-                              style: Theme.of(context).textTheme.headlineSmall,
-                            ),
-                          ),
+                          Expanded(child: Text('Your customers, your payments', style: Theme.of(context).textTheme.headlineSmall)),
                         ],
                       ),
                       const SizedBox(height: AppSpacing.xs),
@@ -206,15 +147,13 @@ class SpotlightInfoScreen extends StatelessWidget {
                 AppButton(
                   label: 'List your business',
                   size: AppButtonSize.large,
-                  onPressed: () =>
-                      Navigator.of(context).pushNamed(AppRoutes.signUpProvider),
+                  onPressed: () => Navigator.of(context).pushNamed(AppRoutes.signUpProvider),
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 AppButton(
                   label: 'How it works',
                   variant: AppButtonVariant.outline,
-                  onPressed: () =>
-                      Navigator.of(context).pushNamed(AppRoutes.howItWorks),
+                  onPressed: () => Navigator.of(context).pushNamed(AppRoutes.howItWorks),
                 ),
               ],
             ),
@@ -230,16 +169,9 @@ class SpotlightInfoScreen extends StatelessWidget {
       isScrollControlled: true,
       useSafeArea: true,
       backgroundColor: AppColors.background,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.xl)),
-      ),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.xl))),
       builder: (sheetContext) => Padding(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpacing.xl,
-          AppSpacing.lg,
-          AppSpacing.xl,
-          AppSpacing.xl,
-        ),
+        padding: const EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.lg, AppSpacing.xl, AppSpacing.xl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -248,55 +180,34 @@ class SpotlightInfoScreen extends StatelessWidget {
               child: Container(
                 width: 42,
                 height: 4,
-                decoration: BoxDecoration(
-                  color: AppColors.greyLight,
-                  borderRadius: BorderRadius.circular(AppRadius.pill),
-                ),
+                decoration: BoxDecoration(color: AppColors.greyLight, borderRadius: BorderRadius.circular(AppRadius.pill)),
               ),
             ),
             const SizedBox(height: AppSpacing.xl),
             Center(child: AppIconTile(icon: product.icon, size: 54)),
             const SizedBox(height: AppSpacing.md),
-            Text(
-              product.name,
-              textAlign: TextAlign.center,
-              style: Theme.of(sheetContext).textTheme.headlineMedium,
-            ),
+            Text(product.name, textAlign: TextAlign.center, style: Theme.of(sheetContext).textTheme.headlineMedium),
             const SizedBox(height: AppSpacing.xs),
-            Text(
-              product.tagline,
-              textAlign: TextAlign.center,
-              style: Theme.of(sheetContext).textTheme.bodyMedium,
-            ),
+            Text(product.tagline, textAlign: TextAlign.center, style: Theme.of(sheetContext).textTheme.bodyMedium),
             const SizedBox(height: AppSpacing.lg),
             for (final feature in product.features)
               Padding(
                 padding: const EdgeInsets.only(bottom: AppSpacing.xs),
                 child: Row(
                   children: [
-                    const Icon(Icons.check_circle_rounded,
-                        size: 16, color: AppColors.success),
+                    const Icon(Icons.check_circle_rounded, size: 16, color: AppColors.success),
                     const SizedBox(width: AppSpacing.sm),
-                    Expanded(
-                      child: Text(
-                        feature,
-                        style: const TextStyle(fontSize: 13, height: 1.35),
-                      ),
-                    ),
+                    Expanded(child: Text(feature, style: const TextStyle(fontSize: 13, height: 1.35))),
                   ],
                 ),
               ),
             const SizedBox(height: AppSpacing.md),
             Container(
               padding: const EdgeInsets.all(AppSpacing.md),
-              decoration: BoxDecoration(
-                color: AppColors.gold.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(AppRadius.md),
-              ),
+              decoration: BoxDecoration(color: AppColors.gold.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(AppRadius.md)),
               child: Row(
                 children: [
-                  const Icon(Icons.request_quote_outlined,
-                      size: 18, color: AppColors.warning),
+                  const Icon(Icons.request_quote_outlined, size: 18, color: AppColors.warning),
                   const SizedBox(width: AppSpacing.sm),
                   const Expanded(
                     child: Text(
@@ -319,11 +230,7 @@ class SpotlightInfoScreen extends StatelessWidget {
               },
             ),
             const SizedBox(height: AppSpacing.sm),
-            AppButton(
-              label: 'Maybe later',
-              variant: AppButtonVariant.ghost,
-              onPressed: () => Navigator.of(sheetContext).pop(),
-            ),
+            AppButton(label: 'Maybe later', variant: AppButtonVariant.ghost, onPressed: () => Navigator.of(sheetContext).pop()),
           ],
         ),
       ),
@@ -338,49 +245,27 @@ class _AdvertisingHero extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.xl),
-      decoration: BoxDecoration(
-        gradient: AppColors.navyGradient,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-      ),
+      decoration: BoxDecoration(gradient: AppColors.navyGradient, borderRadius: BorderRadius.circular(AppRadius.lg)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.md,
-              vertical: 4,
-            ),
-            decoration: BoxDecoration(
-              color: AppColors.white.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(AppRadius.pill),
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 4),
+            decoration: BoxDecoration(color: AppColors.white.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(AppRadius.pill)),
             child: const Text(
               'ADVERTISE ON 702FORU',
-              style: TextStyle(
-                color: AppColors.cyan,
-                fontSize: 10,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 0.8,
-              ),
+              style: TextStyle(color: AppColors.cyan, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.8),
             ),
           ),
           const SizedBox(height: AppSpacing.md),
           Text(
-            'Put your business in front of Las Vegas',
-            style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                  color: AppColors.white,
-                  height: 1.15,
-                ),
+            'Help Las Vegas Discover Your Business',
+            style: Theme.of(context).textTheme.headlineLarge?.copyWith(color: AppColors.white, height: 1.15),
           ),
           const SizedBox(height: AppSpacing.sm),
           Text(
-            'Start with a Basic Listing, then add Spotlight, video or a '
-            'premium banner when you want more attention.',
-            style: TextStyle(
-              color: AppColors.white.withValues(alpha: 0.82),
-              fontSize: 13.5,
-              height: 1.5,
-            ),
+            'Create your Basic Listing to showcase your business to Las Vegas locals and visitors. Add optional Spotlight placements, video advertising, or premium banners whenever you\'re ready.',
+            style: TextStyle(color: AppColors.white.withValues(alpha: 0.82), fontSize: 13.5, height: 1.5),
           ),
         ],
       ),
@@ -410,25 +295,16 @@ class _AdvertisingCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      product.name,
-                      style: Theme.of(context).textTheme.headlineSmall,
-                    ),
+                    Text(product.name, style: Theme.of(context).textTheme.headlineSmall),
                     const SizedBox(height: 2),
-                    Text(
-                      product.tagline,
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
+                    Text(product.tagline, style: Theme.of(context).textTheme.bodySmall),
                   ],
                 ),
               ),
             ],
           ),
           const SizedBox(height: AppSpacing.md),
-          Text(
-            product.description,
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
+          Text(product.description, style: Theme.of(context).textTheme.bodyMedium),
           const SizedBox(height: AppSpacing.md),
           for (final feature in product.features)
             Padding(
@@ -436,34 +312,22 @@ class _AdvertisingCard extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(
-                    Icons.check_circle_outline_rounded,
-                    size: 15,
-                    color: AppColors.purple,
-                  ),
+                  const Icon(Icons.check_circle_outline_rounded, size: 15, color: AppColors.purple),
                   const SizedBox(width: AppSpacing.sm),
-                  Expanded(
-                    child: Text(
-                      feature,
-                      style: const TextStyle(fontSize: 12.5, height: 1.35),
-                    ),
-                  ),
+                  Expanded(child: Text(feature, style: const TextStyle(fontSize: 12.5, height: 1.35))),
                 ],
               ),
             ),
           const SizedBox(height: AppSpacing.md),
           Row(
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Expanded(
-                child: Text(
-                  product.priceLabel,
-                  style: const TextStyle(
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.purple,
-                  ),
-                ),
-              ),
+              // Expanded(
+              //   child: Text(
+              //     product.priceLabel,
+              //     style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: AppColors.purple),
+              //   ),
+              // ),
               AppButton(
                 label: 'Request a quote',
                 size: AppButtonSize.small,
@@ -485,6 +349,5 @@ class _SectionTitle extends StatelessWidget {
   final String title;
 
   @override
-  Widget build(BuildContext context) =>
-      Text(title, style: Theme.of(context).textTheme.headlineMedium);
+  Widget build(BuildContext context) => Text(title, style: Theme.of(context).textTheme.headlineMedium);
 }

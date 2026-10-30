@@ -36,38 +36,32 @@ class HowItWorksScreen extends StatelessWidget {
         body: TabBarView(
           children: [
             _HowItWorksTab(
-              intro:
-                  '702FORU is your guide to everything worth doing in Las Vegas — curated by locals.',
+              intro: '702FORU is your guide to everything worth doing in Las Vegas — curated by locals.',
               steps: const [
                 _Step(
                   icon: Icons.category_outlined,
                   title: 'Browse 12 categories',
-                  body:
-                      'Tap a sphere on the home grid to jump into Arts & Culture, Food & Drink, Free Things To Do and more.',
+                  body: 'Tap a sphere on the home grid to jump into Arts & Culture, Food & Drink, Free Things To Do and more.',
                 ),
                 _Step(
                   icon: Icons.search_rounded,
                   title: 'Search anything',
-                  body:
-                      'Looking for a specific service? Search by name, service or neighbourhood.',
+                  body: 'Looking for a specific service? Search by name, service or neighbourhood.',
                 ),
                 _Step(
                   icon: Icons.storefront_outlined,
                   title: 'Open a business page',
-                  body:
-                      'Every business shares the same layout: photos, map, services, coupons and reviews.',
+                  body: 'Every business shares the same layout: photos, map, services, coupons and reviews.',
                 ),
                 _Step(
                   icon: Icons.confirmation_number_outlined,
                   title: 'Redeem your coupons',
-                  body:
-                      'Free accounts include ${ConsumerCouponPricing.freeCoupons} coupons. Show the code in store, and upgrade any time for more.',
+                  body: 'Free accounts include ${ConsumerCouponPricing.freeCoupons} coupons. Show the code in store, and upgrade any time for more.',
                 ),
                 _Step(
                   icon: Icons.rate_review_outlined,
                   title: 'Leave a review',
-                  body:
-                      'Registered visitors can rate and review any business they have used.',
+                  body: 'Registered visitors can rate and review any business they have used.',
                 ),
               ],
               ctaLabel: 'Create a free account',
@@ -75,46 +69,49 @@ class HowItWorksScreen extends StatelessWidget {
             ),
             _HowItWorksTab(
               intro:
-                  'List your business in front of thousands of Las Vegas locals and visitors — free for ${BusinessListingPricing.trialDays} days.',
+                  'Promote your business on 702ForU and help Las Vegas locals and visitors discover what you offer. Get started with a free 30-day trial.',
               steps: const [
                 _Step(
                   icon: Icons.app_registration_rounded,
-                  title: 'Choose the Basic Listing',
-                  body:
-                      'Free for ${BusinessListingPricing.trialDays} days, then ${BusinessListingPricing.monthlyLabel} unless you cancel. Add advertising whenever you are ready.',
+                  title: 'Choose Your Basic Listing',
+                  body: 'Your first 30 days are free, then \$9.99 per month unless you cancel. Add optional advertising whenever you\'re ready.',
                 ),
                 _Step(
                   icon: Icons.badge_outlined,
-                  title: 'Add your business information',
+                  title: 'Add Your Business Information',
                   body:
-                      'Legal and public name, category, address, contact details, hours and a short description — the same details as the enrollment form.',
+                      'Enter your business name, category, address, contact details, hours, and a short description so customers can learn more about your business.',
                 ),
                 _Step(
                   icon: Icons.dashboard_customize_outlined,
-                  title: 'Get your own listing page',
+                  title: 'Create Your Business Page',
                   body:
-                      'Upload your logo or promo video, describe your services and add photos.',
+                      'Showcase your business with your logo, photos, services, and promotional video, if available. Give potential customers a better idea of what you offer.',
                 ),
                 _Step(
                   icon: Icons.local_offer_outlined,
-                  title: 'Create coupons',
+                  title: 'Create Coupons & Special Offers',
                   body:
-                      'Each coupon carries your 702-4U code, so you can see which offers are working.',
+                      'Create exclusive coupons and special offers to encourage customers to discover your business. Track redemptions using your 702ForU coupon codes, if redemption tracking is enabled.',
                 ),
                 _Step(
                   icon: Icons.account_balance_wallet_outlined,
-                  title: 'Get paid directly',
-                  body:
-                      'Customers pay you directly. 702FORU does not collect customer payments or take a commission on your sales.',
+                  title: 'Get Paid Directly',
+                  body: 'Customers pay you directly. 702ForU does not process customer payments or charge commissions on your sales.',
                 ),
                 _Step(
                   icon: Icons.campaign_outlined,
-                  title: 'Grow with advertising',
+                  title: 'Grow Your Visibility with Advertising',
                   body:
-                      'Ask for a quote on Spotlight, video advertising or a premium banner. Pricing is confirmed before anything is charged.',
+                      'Want more exposure? Ask about optional Spotlight placements, video advertising, and premium banners. Pricing is provided for your approval before any advertising purchase.',
+                ),
+                _Step(
+                  icon: null,
+                  title: 'Ready to Get Started?',
+                  body: 'Choose your listing, showcase your business, and connect with potential customers.',
                 ),
               ],
-              ctaLabel: 'Start my free listing',
+              ctaLabel: 'Start My Free Listing',
               ctaRoute: AppRoutes.signUpProvider,
             ),
           ],
@@ -125,12 +122,7 @@ class HowItWorksScreen extends StatelessWidget {
 }
 
 class _HowItWorksTab extends StatelessWidget {
-  const _HowItWorksTab({
-    required this.intro,
-    required this.steps,
-    required this.ctaLabel,
-    required this.ctaRoute,
-  });
+  const _HowItWorksTab({required this.intro, required this.steps, required this.ctaLabel, required this.ctaRoute});
 
   final String intro;
   final List<_Step> steps;
@@ -142,19 +134,11 @@ class _HowItWorksTab extends StatelessWidget {
     return SafeArea(
       child: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
-        padding: EdgeInsets.symmetric(
-          horizontal: context.pagePadding,
-          vertical: AppSpacing.lg,
-        ),
+        padding: EdgeInsets.symmetric(horizontal: context.pagePadding, vertical: AppSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              intro,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-            ),
+            Text(intro, style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary)),
             const SizedBox(height: AppSpacing.xl),
             for (final step in steps) ...[
               AppCard(
@@ -162,21 +146,14 @@ class _HowItWorksTab extends StatelessWidget {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    AppIconTile(icon: step.icon, size: 44),
-                    const SizedBox(width: AppSpacing.md),
+                    if (step.icon != null) ...[AppIconTile(icon: step.icon!, size: 44), const SizedBox(width: AppSpacing.md)],
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            step.title,
-                            style: Theme.of(context).textTheme.headlineSmall,
-                          ),
+                          Text(step.title, style: Theme.of(context).textTheme.headlineSmall),
                           const SizedBox(height: AppSpacing.xs),
-                          Text(
-                            step.body,
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
+                          Text(step.body, style: Theme.of(context).textTheme.bodyMedium),
                         ],
                       ),
                     ),
@@ -186,11 +163,7 @@ class _HowItWorksTab extends StatelessWidget {
               const SizedBox(height: AppSpacing.md),
             ],
             const SizedBox(height: AppSpacing.md),
-            AppButton(
-              label: ctaLabel,
-              size: AppButtonSize.large,
-              onPressed: () => Navigator.of(context).pushNamed(ctaRoute),
-            ),
+            AppButton(label: ctaLabel, size: AppButtonSize.large, onPressed: () => Navigator.of(context).pushNamed(ctaRoute)),
           ],
         ),
       ),
@@ -201,7 +174,7 @@ class _HowItWorksTab extends StatelessWidget {
 class _Step {
   const _Step({required this.icon, required this.title, required this.body});
 
-  final IconData icon;
+  final IconData? icon;
   final String title;
   final String body;
 }

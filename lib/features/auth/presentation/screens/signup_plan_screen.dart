@@ -22,10 +22,7 @@ class SignupPlanScreen extends StatelessWidget {
         child: Center(
           child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
-            padding: EdgeInsets.symmetric(
-              horizontal: context.pagePadding,
-              vertical: AppSpacing.lg,
-            ),
+            padding: EdgeInsets.symmetric(horizontal: context.pagePadding, vertical: AppSpacing.lg),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 520),
               child: Column(
@@ -34,16 +31,11 @@ class SignupPlanScreen extends StatelessWidget {
                   const SignupStepHeader(
                     step: 1,
                     total: 4,
-                    title: 'Choose your plan',
+                    title: 'Choose Your Plan',
                     subtitle:
-                        'Start with the Basic Listing. You can add advertising '
-                        'later — or ask for a quote during signup.',
-                    stepLabels: [
-                      'Plan',
-                      'Business',
-                      'Advertising',
-                      'Agreement',
-                    ],
+                        'Start with a Basic Listing and add optional '
+                        'advertising whenever you\'re ready.',
+                    stepLabels: ['Plan', 'Business', 'Advertising', 'Agreement'],
                   ),
                   const SizedBox(height: AppSpacing.xl),
 
@@ -55,79 +47,43 @@ class SignupPlanScreen extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            const AppIconTile(
-                              icon: Icons.storefront_outlined,
-                              size: 42,
-                            ),
+                            const AppIconTile(icon: Icons.storefront_outlined, size: 42),
                             const SizedBox(width: AppSpacing.md),
-                            Expanded(
-                              child: Text(
-                                BusinessListingPricing.planName,
-                                style: Theme.of(context).textTheme.headlineSmall,
-                              ),
-                            ),
-                            const Icon(
-                              Icons.check_circle_rounded,
-                              color: AppColors.purple,
-                              size: 22,
-                            ),
+                            Expanded(child: Text(BusinessListingPricing.planName, style: Theme.of(context).textTheme.headlineSmall)),
+                            const Icon(Icons.check_circle_rounded, color: AppColors.purple, size: 22),
                           ],
                         ),
                         const SizedBox(height: AppSpacing.md),
                         Text(
                           BusinessListingPricing.trialLabel.toUpperCase(),
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w800,
-                            color: AppColors.purple,
-                          ),
+                          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: AppColors.purple),
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          'then ${BusinessListingPricing.monthlyLabel} '
-                          'unless cancelled',
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textSecondary,
-                          ),
+                          'Then ${BusinessListingPricing.monthlyLabel}, '
+                          'unless you cancel before your trial ends.',
+                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
                         ),
                         const SizedBox(height: AppSpacing.md),
                         for (final item in const [
-                          'Category listing with your description and contact details',
-                          'Website and social links',
-                          'Standard visibility in search and categories',
+                          'Business listing with your description and contact details',
+                          'Website and social media links',
+                          'Standard visibility in search results and categories',
                         ])
                           Padding(
-                            padding:
-                                const EdgeInsets.only(bottom: AppSpacing.xs),
+                            padding: const EdgeInsets.only(bottom: AppSpacing.xs),
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Icon(
-                                  Icons.check_circle_rounded,
-                                  size: 15,
-                                  color: AppColors.success,
-                                ),
+                                const Icon(Icons.check_circle_rounded, size: 15, color: AppColors.success),
                                 const SizedBox(width: AppSpacing.sm),
-                                Expanded(
-                                  child: Text(
-                                    item,
-                                    style: const TextStyle(
-                                      fontSize: 12.5,
-                                      height: 1.35,
-                                    ),
-                                  ),
-                                ),
+                                Expanded(child: Text(item, style: const TextStyle(fontSize: 12.5, height: 1.35))),
                               ],
                             ),
                           ),
                         const SizedBox(height: AppSpacing.sm),
                         Text(
-                          'A valid payment method is required to start the '
-                          'trial. Cancel before day '
-                          '${BusinessListingPricing.trialDays} to avoid the '
-                          'first charge.',
+                          "A valid payment method is required to start your free trial. You won't be charged today. Your subscription will automatically renew at ${BusinessListingPricing.monthlyLabel} after the 30-day trial unless you cancel before the trial ends.",
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                       ],
@@ -143,35 +99,23 @@ class SignupPlanScreen extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            const Icon(
-                              Icons.campaign_outlined,
-                              size: 20,
-                              color: AppColors.purple,
-                            ),
+                            const Icon(Icons.campaign_outlined, size: 20, color: AppColors.purple),
                             const SizedBox(width: AppSpacing.sm),
-                            Expanded(
-                              child: Text(
-                                'Want more attention?',
-                                style: Theme.of(context).textTheme.headlineSmall,
-                              ),
-                            ),
+                            Expanded(child: Text('Want More Visibility?', style: Theme.of(context).textTheme.headlineSmall)),
                           ],
                         ),
-                        const SizedBox(height: AppSpacing.xs),
+                        const SizedBox(height: AppSpacing.md),
                         Text(
-                          'Spotlight placement, video advertising and '
-                          'premium banners can be added during step 3. '
-                          '${BusinessListingPricing.confirmationNote}',
+                          "Promote your business with optional Spotlight placements, video advertising, and premium banners.\n\nExplore advertising options during Step 3. All advertising prices will be confirmed with you before purchase.",
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                         const SizedBox(height: AppSpacing.sm),
                         AppButton(
-                          label: 'See advertising options',
+                          label: 'See Advertising Options',
                           variant: AppButtonVariant.ghost,
                           size: AppButtonSize.small,
                           icon: Icons.open_in_new_rounded,
-                          onPressed: () => Navigator.of(context)
-                              .pushNamed(AppRoutes.spotlightInfo),
+                          onPressed: () => Navigator.of(context).pushNamed(AppRoutes.spotlightInfo),
                         ),
                       ],
                     ),
@@ -182,14 +126,12 @@ class SignupPlanScreen extends StatelessWidget {
                     label: 'Continue',
                     size: AppButtonSize.large,
                     trailingIcon: Icons.arrow_forward_rounded,
-                    onPressed: () => Navigator.of(context)
-                        .pushNamed(AppRoutes.signUpProviderBusiness),
+                    onPressed: () => Navigator.of(context).pushNamed(AppRoutes.signUpProviderBusiness),
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   Center(
                     child: Text(
-                      'No charge today. Your ${BusinessListingPricing.trialDays}-day '
-                      'trial starts when the listing is activated.',
+                      'No charge today. Your 30-day free trial begins when your listing is activated.',
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
